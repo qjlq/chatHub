@@ -15,10 +15,10 @@ public class UserServicelmpl implements UserService {
     @Autowired
     private UserRepository userDao;
 
-    @Override
-    public void addUser(User user){
-        userDao.save(user);
-    }
+    // @Override
+    // public void addUser(User user){
+    //     userDao.save(user);
+    // }
 
     @Override
     public List<User> list(){

@@ -18,11 +18,11 @@ public class UserController {
     //在服务层（Service）中，通常需要依赖于数据访问层（Repository）的Bean，可以使用 @Autowired 注解来注入数据访问层的实例。
     private UserService userService;
 
-    @RequestMapping("add")
-    public User add(User user) {
-        userService.addUser(user);
-        return user;
-    }
+    // @RequestMapping("add")
+    // public User add(User user) {
+    //     userService.addUser(user);
+    //     return user;
+    // }
 
     @GetMapping("list") //@GetMapping 注解：对应 @GET 请求方法的 @RequestMapping 注解。
     public List<User> list() {
