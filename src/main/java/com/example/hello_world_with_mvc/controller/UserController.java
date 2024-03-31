@@ -30,4 +30,6 @@ public class UserController {
     }
     // 运行在浏览器栏输入 /user/add?userId=2&userName=test2
     //或 /user/list
+    //运行时要先去http://localhost:8080/h2
+
 }
