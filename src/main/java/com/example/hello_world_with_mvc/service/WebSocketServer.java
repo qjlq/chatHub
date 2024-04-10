@@ -21,7 +21,7 @@ import com.google.gson.JsonParser;
 /*
  *   WebSocket的操作类
  * html页面与之关联的接口
- * var reqUrl = "http://localhost:8300/websocket/" + cid;
+ * var reqUrl = "http://localhost:8080/websocket/" + cid;
  * socket = new WebSocket(reqUrl.replace("http", "ws"));
  */
 
