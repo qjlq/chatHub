@@ -25,9 +25,10 @@
         console.log("您的浏览器支持WebSocket");
         //实现化WebSocket对象，指定要连接的服务器地址与端口  建立连接
 
-        var cid = document.getElementById("cid").value;
+        //var cid = document.getElementById("cid").value;
+        var cid = Math.round(Math.random()*10);
         console.log("cid-->" + cid);
-        var reqUrl = "http://localhost:8080/websocket/" + cid;
+        var reqUrl = "http://localhost:2234/websocket/" + cid;
         //var reqUrl = "http://3.89.132.150:8080/websocket/" + cid;
         socket = new WebSocket(reqUrl.replace("http", "ws"));
         //打开事件

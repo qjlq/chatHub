@@ -20,17 +20,17 @@ public class ChatController {
      * @param model
      * @return
      */
-    @GetMapping("/demo/toWebSocketDemo/{cid}")
-    //@GetMapping("/demo/{cid}")
-    public String toWebSocketDemo(@PathVariable String cid, Model model) {
-        model.addAttribute("cid", cid);
-        // 这里return就是去index.html了
-        return "index";
-    }
+    // @GetMapping("/demo/toWebSocketDemo/{cid}")
+    // //@GetMapping("/demo/{cid}")
+    // public String toWebSocketDemo(@PathVariable String cid, Model model) {
+    //     model.addAttribute("cid", cid);
+    //     // 这里return就是去index.html了
+    //     return "index";
+    // }
 
-    @GetMapping("hello")
-    @ResponseBody
-    public String hi(HttpServletResponse response) {
-        return "Hi";
-    }
+    // @GetMapping("hello")
+    // @ResponseBody
+    // public String hi(HttpServletResponse response) {
+    //     return "Hi";
+    // }
 }

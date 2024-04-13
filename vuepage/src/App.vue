@@ -1,9 +1,14 @@
 <template>
   <html style="--sidebar-width: 300px;" lang="en">
     <body>
-      <div class="right-body">
-        <myHeader/>
-        
+      <div class="window">
+                  <div class="left-bar">tmp</div>
+        <div class="chat">
+
+          <myHeader/>
+          <ChatWindow/>
+        </div>
+
 
       </div>
       
@@ -16,16 +21,18 @@
 </template>
 
 <script>
-// import HelloWorld from './components/HelloWorld.vue'
-import myHeader from './components/myHeader.vue'
-
-export default {
-  name: 'App',
-  components: {
-    // HelloWorld
-    myHeader
+  // import HelloWorld from './components/HelloWorld.vue'
+  import myHeader from './components/myHeader.vue'
+  import ChatWindow from './components/ChatWindow.vue'
+  export default {
+    name: 'App',
+    components: {
+      // HelloWorld
+      myHeader,
+      ChatWindow
+    }
   }
-}
+  
 </script>
 
 <style>
@@ -38,23 +45,51 @@ export default {
   margin-top: 60px;
 }
 body{
-    background-color: var(--gray);
-    color: var(--black);
+    background-color: #fafafa;
+    color: #303030;
     margin: 0;
     padding: 0;
     width: 100vw;
-    /* display: flex;
+    display: flex;
     justify-content: center;
     align-items: center;
     user-select: none;
     touch-action: pan-x pan-y;
-    overflow: hidden; */
+    overflow: hidden;
 }
-.right-body{
+.window{
+  border: 1px solid #dedede;
+  border-radius: 20px;
+  box-shadow: 50px 50px 100px 10px rgba(0, 0, 0, .1);;
+  color: #303030;
+  background-color: #fff;
+  min-width: 600px;
+  min-height: 370px;
+  max-width: 1200px;
+  display: flex;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 90vw;
+  height: 90vh;
+}
+.chat{
+  width: calc(100% - var(--sidebar-width));
   display: flex;
   flex-direction: column;
-  position: relative;
   height: 100%;
+  position: relative;
+}
+.left-bar{
+  top: 0;
+  width: 300px;;
+  box-sizing: border-box;
+  padding: 20px;
+  background-color: #e7f8ff;
+  display: flex;
+  flex-direction: column;
+  box-shadow: inset -2px 0 2px 0 rgba(0,0,0,.05);
+  position: relative;
+  transition: width .05s
 }
 
 </style>

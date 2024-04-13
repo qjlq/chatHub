@@ -37,6 +37,6 @@ spring:
     template-resolver-order: 1
 #server 配置不在spring 内
 server:
-  port: 8080
+  port: 2234
 
    
