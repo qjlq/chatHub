@@ -96,6 +96,7 @@ export default {
         border: darkgrey;
         color: black;
         cursor: pointer;
+        margin-right: 16px;
         /* transition: all .3s ease;
             transition-behavior: normal;
             transition-duration: 0.3s;

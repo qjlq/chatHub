@@ -194,6 +194,7 @@ export default {
         background-color: #1d93ab;
         color: #fff;
         cursor: pointer;
+        margin-right: 16px;
     }
     .button-image{
         width: 16px;
