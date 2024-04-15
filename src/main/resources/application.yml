@@ -7,9 +7,10 @@ spring:
     # url: jdbc:h2:mem:dbtest #配置h2数据库的连接地址;此为service链接模式，只允许一个链接，如果想多个链接，比如测试代码链接和页面的h2控制台链接，请使用混合模式链接,将 JDBC URL 后加上 AUTO_SERVER=TRUE
     # username: sa
     #从h2数据转为mysql
-    url: jdbc:mysql://localhost:3306/sp_boot_demo
-    username: root
-    password: 123456
+    # url: jdbc:mysql://localhost:3306/chat
+    url: jdbc:mysql://192.168.219.131:3306/chat
+    username: admin
+    password: ChatDB_@628
     driver-class-name: com.mysql.cj.jdbc.Driver
   # h2:
   #   console:

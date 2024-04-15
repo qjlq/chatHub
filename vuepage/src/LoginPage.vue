@@ -9,15 +9,15 @@
                     tmps
                 </div>
                 <div class="container-input">
-                    <form action="" accept-charset="UTF-8" data-turbo="false" method="post">
-                        <label for="login_field">Username</label>
-                        <input type="text" name="login" id="login_field" class="input-box" autocapitalize="off" autocorrect="off" autocomplete="username" autofocus="autofocus" required="required">
+                    <!-- <form action="" accept-charset="UTF-8" data-turbo="false" method="post"> -->
+                        <!-- <label for="login_field">Username</label> -->
+                        <input @input="onInputid" type="text" name="login" id="login_field" class="input-box" autocapitalize="off" autocorrect="off" autocomplete="username" autofocus="autofocus" required="required">
                         <label for="login_field">Password</label>
-                        <input type="password" name="password" id="password" class="input-box" autocapitalize="off" autocorrect="off" autocomplete="username" autofocus="autofocus" required="required">
-                        <button class="commit-button">
+                        <input @input="onInputpw" type="password" name="password" id="password" class="input-box" autocapitalize="off" autocorrect="off" autocomplete="username" autofocus="autofocus" required="required">
+                        <button @click="logins"   class="commit-button">
                             Sign in
                         </button>
-                    </form>
+                    <!-- </form> -->
                 </div>
             </div>
         </main>
@@ -25,7 +25,76 @@
 </template>
 <script>
 
+import axios from 'axios';
+// const login = axios.create({
+//     baseURL: 'http://localhost:2234',  // 请求根路径
+//     timeout: 20000,// 请求超时时间
+// })
+// axios.defaults.baseURL = "/api";
+
 export default {
+    data() {
+        return {
+            token:'',
+            cid:'',
+            password:'',
+            message:''
+        }
+    },methods: {
+        onInputid(e){
+            this.cid = e.target.value
+            
+        },
+        onInputpw(e){
+            this.password = e.target.value
+        },
+        logins(){
+            var json = '{"cid":"' + this.cid + '","password":"' + this.password + '"}'
+            // this.verify();
+            // this.$http({
+            //     method: "post",
+            //     url: "http://localhost:2234/login",
+            //     headers: {
+            //     "content-type": "application/json",//multipart/form-data
+            //     },
+            //     data: {
+            //     cid: this.cid,
+            //     password: this.password,
+            //     },
+            //     withCredentials: true,
+            // }).then((res) => {
+            //     console.log(res.data);
+            // });
+
+            // login.defaults.baseURL = '/user'
+            // login.post('/logins/login',
+            // {
+            //     cid:this.cid,
+            //     password:this.password
+            // }).then((res)=>{
+            //     this.message=res.data;
+            // })
+
+            // axios.post('/api/logins/login',{
+            //     json:json
+            // }).then((res)=>{
+            //     this.message=res.data;
+            //     //console.log(res.data);
+            // })
+
+            axios({
+                method:"post",
+                url:"/api/login/logins",
+                params:{
+                    json
+                },
+
+            }).then((res)=>{
+                this.message=res.data;
+                console.log(res,5555);
+            })
+        }
+    },
     
 }
 </script>

@@ -1,31 +1,40 @@
 <template lang="">
 <component :is='currentView'></component>
+    <!-- <LoginPage/> -->
 </template>
 <script>
-import Chatroom from './Chatroom.vue'
-import LoginPage from './LoginPage.vue'
-import NotFund from './NotFund.vue'
-const routes ={
-    '/':LoginPage,
-    '/chat':Chatroom,
-}
-export default {
-    data() {
-        return {
-            currentPath:window.location.hash
-        }
-    },
-    computed:{
-        currentView() {
-            return routes[this.currentPath.slice(1) || '/'] || NotFund
-        }
-    },
-    mounted() {
-        window.addEventListener('hashchange',()=>{
-            this.currentPath = window.location.hash
-        })
-    },
-}
+    import ChatRoom from './ChatRoom.vue'
+    import LoginPage from './LoginPage.vue'
+    // export default {
+    //     name: 'App',
+    //     components: {
+    //         LoginPage
+    //     }
+    // }
+  
+    import NotFund from './NotFund.vue'
+    const routes ={
+        '/':LoginPage,
+        '/chat':ChatRoom,
+    }
+    export default {
+        data() {
+            return {
+                currentPath:window.location.hash
+            }
+        },
+        computed:{
+            currentView() {
+                return routes[this.currentPath.slice(1) || '/'] || NotFund
+                // return routes[this.currentPath.slice(1) || '/']
+            }
+        },
+        mounted() {
+            window.addEventListener('hashchange',()=>{
+                this.currentPath = window.location.hash
+            })
+        },
+    }
 </script>
 <style lang="">
     

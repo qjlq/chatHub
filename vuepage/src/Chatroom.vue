@@ -25,7 +25,7 @@
   import myHeader from './components/myHeader.vue'
   import ChatWindow from './components/ChatWindow.vue'
   export default {
-    name: 'App',
+    // name: 'App',
     components: {
       // HelloWorld
       myHeader,

@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "axios": "^1.6.8",
     "core-js": "^3.8.3",
     "vue": "^3.2.13"
   },
@@ -34,6 +35,7 @@
     },
     "rules": {}
   },
+
   "browserslist": [
     "> 1%",
     "last 2 versions",
@@ -41,3 +43,4 @@
     "not ie 11"
   ]
 }
+
