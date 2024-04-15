@@ -7,20 +7,40 @@ import jakarta.persistence.Table;
 @Entity //为加 h2新增的
 @Table(name = "tb_user") //为加 h2新增的
 public class User {
-    private int userId;
+    private String userId;
     @Id  //为加 h2新增的
-    public int getUserId(){
-        return userId;
-    }
     private String userName;
+    private String passWord;
+
+    public User(String userId,String userName,String passwWord){
+        this.userId = userId;
+        this.userName = userName;
+        this.passWord = passwWord;
+    }
+
+    public User(){
+        this.userId = null;
+        this.userName = null;
+        this.passWord = null;
+    }
+
+    public String getUserId(){
+        return this.userId;
+    }
     public String getUserName(){
-        return userName;
+        return this.userName;
+    }
+    public String getPassword(){
+        return this.passWord;
     }
     public void setUserName(String userName){
         this.userName = userName;
     }
     public void setUserId(String userName){
         this.userName = userName;
+    }
+    public void setPassWord(String passWord){
+        this.passWord = passWord;
     }
 
 }

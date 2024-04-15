@@ -2,11 +2,12 @@
 <component :is='currentView'></component>
 </template>
 <script>
-// import Chatroom from './Chatroom.vue'
+import Chatroom from './Chatroom.vue'
 import LoginPage from './LoginPage.vue'
 import NotFund from './NotFund.vue'
 const routes ={
-    '/':LoginPage
+    '/':LoginPage,
+    '/chat':Chatroom,
 }
 export default {
     data() {

@@ -57,12 +57,13 @@ export default {
         width: 100% ;
     }
     .container-header{
-        margin-bottom: 16px;
+        margin-bottom: 20px;
         color:#1f2328;
         text-align: center;
         text-shadow: none;
         background-color: transparent;
         border: 0;
+
     }
     .container-input{
         border-top: 2px #d0d7deb3;
