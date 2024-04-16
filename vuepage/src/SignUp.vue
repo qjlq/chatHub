@@ -1,4 +1,4 @@
-<template lang="html">
+<template lang="">
     <body>
         <main>
             <div class="main-container">
@@ -10,14 +10,18 @@
                 </div>
                 <div class="container-input">
                     <!-- <form action="" accept-charset="UTF-8" data-turbo="false" method="post"> -->
-                        <label for="login_field">Username</label>
-                        <input @input="onInputid" type="text" name="login" id="login_field" class="input-box" autocapitalize="off" autocorrect="off" autocomplete="username" autofocus="autofocus" required="required">
-                        <label for="login_field">Password</label>
-                        <input @input="onInputpw" type="password" name="password" id="password" class="input-box" autocapitalize="off" autocorrect="off" autocomplete="username" autofocus="autofocus" required="required">
-                        <button @click="logins"   class="commit-button">
-                            Sign in
+                        <label for="login_field">email:</label>
+                        <input @input="onEmail" type="text" name="login" id="login_field" class="input-box" autocapitalize="off" autocorrect="off" autocomplete="username" autofocus="autofocus" required="required">
+                        <label for="login_field">Username:</label>
+                        <input @input="onName" type="text" name="password" id="password" class="input-box" autocapitalize="off" autocorrect="off" autocomplete="username" autofocus="autofocus" required="required">
+                        <label for="login_field">password:</label>
+                        <input @input="onPwd" type="password" name="password" id="password" class="input-box" autocapitalize="off" autocorrect="off" autocomplete="username" autofocus="autofocus" required="required">
+                        <label for="login_field">re-password:</label>
+                        <input @input="onRePwd" type="password" name="password" id="password" class="input-box" autocapitalize="off" autocorrect="off" autocomplete="username" autofocus="autofocus" required="required">
+                        <button @click="sign"   class="commit-button">
+                            Sign up
                         </button>
-                        <a class="link" id="sign-up" href="/signup">sign-up</a>
+
                     <!-- </form> -->
                 </div>
             </div>
@@ -25,65 +29,59 @@
     </body>
 </template>
 <script>
-
 import axios from 'axios';
-// import { useRouter } from 'vue-router'
-// const router = useRouter();
-import router from './router.config.js'
 
-
+import router from './router.config.js';
 export default {
-    // setup() {
-    //     const router = useRouter();
-    // },
     data() {
         return {
-            token:'',
             cid:'',
+            username:'',
             password:'',
-            message:''
+            repwd:'',
         }
-    },methods: {
-        onInputid(e){
-            this.cid = e.target.value
-            
+    },
+    methods: {
+        onEmail(e){
+            this.cid = e.target.value 
         },
-        onInputpw(e){
+        onName(e){
+            this.username = e.target.value
+        },
+        onPwd(e){
             this.password = e.target.value
         },
-        logins(){
-            var json = '{"cid":"' + this.cid + '","password":"' + this.password + '"}'
-
-            axios({
-                method:"post",
-                url:"/api/login/logins",
-                params:{
-                    json
-                },
-
-            }).then((res)=>{
-                if (res.data == "y"){
-                    router.push({
-                        path:'/chatroom',
-                        query:{cid:this.cid}
-                    });
-                }else {
-                    router.push('login');
-                }
-            })
+        onRePwd(e){
+            this.repwd = e.target.value
         },
-        // logins(){
-        //     router.push({
-        //                 path:'/signup',
-        //                 //query:{cid:this.cid}
-        //     })
-        // }
+        sign(){
+            if(this.password == this.repwd){
+                var json = '{"cid":"' + this.cid + '","password":"' + this.password + '","username":"' + this.username + '"}'
+                axios({
+                    method:"post",
+                    url:"/api/login/signup",
+                    params:{
+                        json
+                    },
+                }).then((res)=>{
+                    if (res.data == "y"){
+                        router.push({
+                            path:'/',
+                        });
+                    }else {
+                        console.log('eeeee')
+                    }
+                })
+            }else{
+                console.log('eeeee')
+            }
+        }
     },
     
 }
 </script>
 <style lang="css">
-    *{
+     *{
         box-sizing: border-box;
     }
     body{
@@ -98,7 +96,7 @@ export default {
         unicode-bidi: isolate;
     }
     .main-container{
-        width: 320px;
+        width: 520px;
         margin: 0 auto;
         margin-top: auto;
         
@@ -156,10 +154,5 @@ export default {
         cursor: pointer;
         width: 100%
     }
-    .link{
-        align-items: center;
-        padding: 5px 12px;
-        font-size: 15px;
-        margin-bottom: 16px;
-    }
+
 </style>

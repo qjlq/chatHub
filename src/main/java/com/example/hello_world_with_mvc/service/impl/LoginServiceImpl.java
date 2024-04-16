@@ -16,15 +16,25 @@ public class LoginServiceImpl implements LoginService {
     private DatabaseService database;
     @Override
     public String Login(String uid,String password){
-        System.err.println(uid + " " + password);
+        // System.err.println(uid + " " + password);
         String token = new String();
         user = database.getVaiUserID(uid);
-        System.err.println(user.getUserId() + " "+user.getPassword());
+        // System.err.println(user.getUserId() + " "+user.getPassword());
         if (password.equals(user.getPassword())){
             token = "y";
         }else{
             token = "n";
         }
         return token;
+    }
+    @Override
+    public String SignUp(String uid,String password,String username){
+        String token = new String();
+        if (database.addUser(uid, password, username) == 1){
+            token = "y";
+        }else{
+            token = "n";
+        }
+        return token = "y";
     }
 }

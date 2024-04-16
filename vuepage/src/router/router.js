@@ -15,10 +15,16 @@ const routes = [
       component: () => import('../LoginPage.vue'),  
     },
     {
-        path: '/notFund',
-        name: 'notFund',
-        component: () => import('../NotFund.vue'),  
-    }
+      path:'/signup',
+      name:'signup',
+      component: () => import('../SignUp.vue'),
+    },
+    {
+      path: '/notFund',
+      name: 'notFund',
+      component: () => import('../NotFund.vue'),  
+    },
+
   ]
   
   export default routes
