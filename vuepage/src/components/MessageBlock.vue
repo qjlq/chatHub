@@ -1,17 +1,16 @@
 <template lang="html">
-    <div class="message-body">
-        <div :class="position">
-            <div class="message-head">
-                <div class="message-image">
-                    {{cid}}
-                </div>
-            </div>
-            <div class="message-text">
-                <p style="font-size: 14px;" dir="auto">{{msg}}</p>
+
+    <div :class="position">
+        <div class="message-head">
+            <div class="message-image">
+                {{cid}}
             </div>
         </div>
-        
+        <div class="message-text">
+            <p style="font-size: 14px;" dir="auto">{{msg}}</p>
+        </div>
     </div>
+        
 </template>
 <script>
 export default {
@@ -38,21 +37,6 @@ export default {
 }
 </script>
 <style lang="css">
-    .message-body{
-        /* animation-duration: 0.3s;
-        animation-timing-function: ease;
-        animation-delay: 0s;
-        animation-iteration-count: 1;
-        animation-direction: normal;
-        animation-fill-mode: none;
-        animation-play-state: running; */
-        /* animation-name: chat_slide-in__nvZgA;
-        animation-timeline: auto;
-        animation-range-start: normal;
-        animation-range-end: normal; */
-        /* max-width: 80%; */
-        display: flex;
-    }
     .message-container-left{
         /* max-width: 80%; */
         display: flex;

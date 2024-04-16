@@ -1,4 +1,4 @@
-<template lang="">
+<template lang="html">
     <div>
         404
     </div>
@@ -8,6 +8,6 @@ export default {
     
 }
 </script>
-<style lang="">
+<style lang="css">
     
 </style>

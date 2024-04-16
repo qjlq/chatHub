@@ -6,7 +6,7 @@
         <div class="chat">
 
           <myHeader/>
-          <ChatWindow/>
+          <ChatWindow :cid="cid"/>
         </div>
 
 
@@ -24,12 +24,22 @@
   // import HelloWorld from './components/HelloWorld.vue'
   import myHeader from './components/myHeader.vue'
   import ChatWindow from './components/ChatWindow.vue'
+  // import { useRouter } from "vue-router";
+  // const router = useRouter()
+  // const cid = router.currentRoute.value.query.cid;
+  import router from './router.config.js'
+
   export default {
     // name: 'App',
+    data() {
+      return {
+        cid:router.currentRoute.value.query.cid
+      }
+    },
     components: {
       // HelloWorld
       myHeader,
-      ChatWindow
+      ChatWindow,
     }
   }
   

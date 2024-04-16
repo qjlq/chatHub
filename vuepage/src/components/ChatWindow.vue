@@ -61,14 +61,17 @@
 <script>
 // import MessageBlock from './MessageBlock.vue'
 //let cid = 0
-var cid = Math.round(Math.random()*100);
+// var cid = Math.round(Math.random()*100);
 var scid = '';
 export default {
+    props:{
+        cid:String
+    },
     data() {
         return {
             newMsg:'',
             test: [
-            {cid: cid++,msg: 'test message',left:true}
+            {cid: this.cid,msg: 'test message',left:true}
             ],
             socket:null,
         }
@@ -83,8 +86,8 @@ export default {
     methods: {
         initWebSocket() {
         // WebSocket与普通的请求所用协议有所不同，ws等同于http，wss等同于https
-            console.log("调用了链接websock  ，用户id为   ："+cid)
-            var reqUrl = "http://localhost:2234/websocket/" + cid;
+            console.log("调用了链接websock  ，用户id为   ："+this.cid)
+            var reqUrl = "http://localhost:2234/websocket/" + this.cid;
             this.socket = new WebSocket(reqUrl.replace("http", "ws"));
             console.log(reqUrl.replace("http", "ws"));
             this.socket.onopen = this.Onopen;
@@ -99,7 +102,7 @@ export default {
             if (this.newMsg != ''){
                 // this.test.push({cid : cid++,msg: this.newMsg,left:false})
                 // this.newMsg = ''
-                this.test.push({cid : cid,msg: this.newMsg,left:false})
+                this.test.push({cid : this.cid,msg: this.newMsg,left:false})
                 this.scollToButtom()
                 var msg = '{"cid":"' + scid + '","message":"' + this.newMsg + '"}'
                 this.socket.send(msg)
@@ -111,7 +114,7 @@ export default {
             // this.test.push({cid : cid++,msg: 'receive',left:true})
             var message = JSON.parse(msg.data);
             console.log(msg)
-            if(message.cid == cid.toString()){
+            if(message.cid == this.cid.toString()){
                 message.cid = "系统信息"
             }
             this.test.push({cid : message.cid, msg: message.msg,left:true})

@@ -26,13 +26,15 @@
 <script>
 
 import axios from 'axios';
-// const login = axios.create({
-//     baseURL: 'http://localhost:2234',  // 请求根路径
-//     timeout: 20000,// 请求超时时间
-// })
-// axios.defaults.baseURL = "/api";
+// import { useRouter } from 'vue-router'
+// const router = useRouter();
+import router from './router.config.js'
+
 
 export default {
+    // setup() {
+    //     const router = useRouter();
+    // },
     data() {
         return {
             token:'',
@@ -50,37 +52,6 @@ export default {
         },
         logins(){
             var json = '{"cid":"' + this.cid + '","password":"' + this.password + '"}'
-            // this.verify();
-            // this.$http({
-            //     method: "post",
-            //     url: "http://localhost:2234/login",
-            //     headers: {
-            //     "content-type": "application/json",//multipart/form-data
-            //     },
-            //     data: {
-            //     cid: this.cid,
-            //     password: this.password,
-            //     },
-            //     withCredentials: true,
-            // }).then((res) => {
-            //     console.log(res.data);
-            // });
-
-            // login.defaults.baseURL = '/user'
-            // login.post('/logins/login',
-            // {
-            //     cid:this.cid,
-            //     password:this.password
-            // }).then((res)=>{
-            //     this.message=res.data;
-            // })
-
-            // axios.post('/api/logins/login',{
-            //     json:json
-            // }).then((res)=>{
-            //     this.message=res.data;
-            //     //console.log(res.data);
-            // })
 
             axios({
                 method:"post",
@@ -90,10 +61,22 @@ export default {
                 },
 
             }).then((res)=>{
-                this.message=res.data;
-                console.log(res,5555);
+                if (res.data == "y"){
+                    router.push({
+                        path:'/chatroom',
+                        query:{cid:this.cid}
+                    });
+                }else {
+                    router.push('login');
+                }
             })
-        }
+        },
+        // logins(){
+        //     router.push({
+        //                 path:'/notFund',
+        //                 query:{cid:this.cid}
+        //     })
+        // }
     },
     
 }
