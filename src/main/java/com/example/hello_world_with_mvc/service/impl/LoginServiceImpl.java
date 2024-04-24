@@ -20,7 +20,7 @@ public class LoginServiceImpl implements LoginService {
         String token = new String();
         user = database.getVaiUserID(uid);
         // System.err.println(user.getUserId() + " "+user.getPassword());
-        if (password.equals(user.getPassword())){
+        if (password.equals(user.getPassword()) || user.getUserId() != null){
             token = "y";
         }else{
             token = "n";

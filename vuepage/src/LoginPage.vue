@@ -67,17 +67,18 @@ export default {
                         path:'/chatroom',
                         query:{cid:this.cid}
                     });
+                    console.log("test")
                 }else {
                     router.push('login');
                 }
             })
         },
-        // logins(){
-        //     router.push({
-        //                 path:'/signup',
-        //                 //query:{cid:this.cid}
-        //     })
-        // }
+        login(){
+            router.push({
+                        path:'/signup',
+                        //query:{cid:this.cid}
+            })
+        }
     },
     
 }
