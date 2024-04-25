@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import com.example.hello_world_with_mvc.entity.User;
 import com.example.hello_world_with_mvc.service.DatabaseService;
 
+import lombok.extern.slf4j.Slf4j; //log
+@Slf4j
 @Service
 public class DatabaseServiceImpl implements DatabaseService {
     @Autowired
@@ -29,6 +31,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         } catch (Exception e) {
             User user = new User();
             user.setUserId(null);
+            log.info("{} user does ont exit error:{}",cid,e.toString());
             return user;
         }
 
@@ -38,4 +41,46 @@ public class DatabaseServiceImpl implements DatabaseService {
 
         return jdbcTemplate.update("insert into chat.user(uid, username, password) values(?, ?,?)",uid, username, password);
     }
+
+    @Override
+    public String getNameByCid(String cid){
+        try {
+            String sql = "select username from chat.user where uid = ?";
+            List<String> result = jdbcTemplate.query(sql,(resultset,i)->{
+                return resultset.getString("username");
+            },cid);
+            return result.get(0);
+        } catch (Exception e) {
+            log.info("{} cid does not exit error:{}",cid,e.toString());
+            return null;
+        }
+    }
+
+    @Override
+    public List<String> getCidByGid(String gid){
+        try {
+            String sql = "select cid from chat.chat_group where gid = ?";
+            List<String> result = jdbcTemplate.query(sql,(resultset,i)->{
+                return resultset.getString("cid");
+            },gid);
+            return result;
+        } catch (Exception e) {
+            log.info("{} gid does not exit error:{}",gid,e.toString());
+            return null;
+        }
+    }
+    @Override
+    public List<String> getGidByCid(String cid){
+        try {
+            String sql = "select gid from chat.chat_group where cid = ?";
+            List<String> result = jdbcTemplate.query(sql,(resultset,i)->{
+                return resultset.getString("gid");
+            },cid);
+            return result;
+        } catch (Exception e) {
+            log.info("{} cid does not exit error:{}",cid,e.toString());
+            return null;
+        }
+    }
+    
 }

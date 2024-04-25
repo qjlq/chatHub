@@ -1,6 +1,7 @@
 package com.example.hello_world_with_mvc.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.example.hello_world_with_mvc.dao.UserRepository;
@@ -9,8 +10,12 @@ import com.example.hello_world_with_mvc.service.DatabaseService;
 import com.example.hello_world_with_mvc.service.LoginService;
 import com.example.hello_world_with_mvc.service.UserService;
 
+
+
 @Service
 public class LoginServiceImpl implements LoginService {
+
+
     private User user;
     @Autowired
     private DatabaseService database;

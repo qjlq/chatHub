@@ -7,10 +7,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.servlet.http.HttpServletResponse;
+import com.example.hello_world_with_mvc.service.WebSocketServer;
 
-@Controller
-//@RestController
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+
+//@Controller
+@RestController
+@RequestMapping("/chatcontroller")
 public class ChatController {
         /**
      * 跳转到websocketDemo.html页面，携带自定义的cid信息。
@@ -33,4 +40,9 @@ public class ChatController {
     // public String hi(HttpServletResponse response) {
     //     return "Hi";
     // }
+    @RequestMapping("/getgid")
+    public String requestMethodName(String cid) {
+        return new String();
+    }
+    
 }

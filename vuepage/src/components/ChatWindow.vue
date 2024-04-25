@@ -7,7 +7,7 @@
                 <div class="message-container">
                     <div class="message-head">
                         <div class="message-image">
-                            {{tester.cid}}
+                            {{tester.name}}
                         </div>
                     </div>
                     <div class="message-text">
@@ -20,7 +20,7 @@
                 <div class="message-container">
                     <div class="message-head">
                         <div class="message-image">
-                            {{tester.cid}}
+                            {{tester.name}}
                         </div>
                     </div>
                     <div class="message-text">
@@ -63,6 +63,7 @@
 //let cid = 0
 // var cid = Math.round(Math.random()*100);
 var scid = '';
+var togid = '';
 export default {
     props:{
         cid:String
@@ -71,9 +72,10 @@ export default {
         return {
             newMsg:'',
             test: [
-            {cid: this.cid,msg: 'test message',left:true}
+            {cid: this.cid,name: 'name',msg: 'test message',left:true}
             ],
             socket:null,
+            name:null,
         }
 
     },
@@ -102,9 +104,9 @@ export default {
             if (this.newMsg != ''){
                 // this.test.push({cid : cid++,msg: this.newMsg,left:false})
                 // this.newMsg = ''
-                this.test.push({cid : this.cid,msg: this.newMsg,left:false})
+                this.test.push({cid : this.cid,name : this.name ,msg: this.newMsg,left:false})
                 this.scollToButtom()
-                var msg = '{"cid":"' + scid + '","message":"' + this.newMsg + '"}'
+                var msg = '{"cid":"' + scid + '","gid":"' + togid + '","message":"' + this.newMsg + '"}'
                 this.socket.send(msg)
                 this.newMsg = ''
             
@@ -114,11 +116,19 @@ export default {
             // this.test.push({cid : cid++,msg: 'receive',left:true})
             var message = JSON.parse(msg.data);
             console.log(msg)
-            if(message.cid == this.cid.toString()){
-                message.cid = "系统信息"
+            // if(message.cid == this.cid.toString()){
+            //     message.cid = "系统信息"
+            // }
+            if(message.code == 1){
+                console.log("get a message")
+            }else if(message.code == 0){
+                this.name = message.name;
+                message.name = "系统信息"
+            }else if(message.code == 2){
+                message.name = "系统信息"
             }
-            this.test.push({cid : message.cid, msg: message.msg,left:true})
-            this.scollToButtom()
+            this.test.push({cid : message.cid,name : message.name, msg: message.msg,left:true});
+            this.scollToButtom();
         },
         onInput(e){
             this.newMsg = e.target.value
