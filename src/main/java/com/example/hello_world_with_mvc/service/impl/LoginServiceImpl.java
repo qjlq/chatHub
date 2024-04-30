@@ -10,8 +10,10 @@ import com.example.hello_world_with_mvc.service.DatabaseService;
 import com.example.hello_world_with_mvc.service.LoginService;
 import com.example.hello_world_with_mvc.service.UserService;
 
+import lombok.extern.slf4j.Slf4j;
 
 
+@Slf4j
 @Service
 public class LoginServiceImpl implements LoginService {
 
@@ -29,6 +31,7 @@ public class LoginServiceImpl implements LoginService {
             token = "y";
         }else{
             token = "n";
+            log.info("error password: cid:{}",uid);
         }
         return token;
     }

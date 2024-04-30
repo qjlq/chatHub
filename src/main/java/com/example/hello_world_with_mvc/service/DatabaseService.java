@@ -4,6 +4,7 @@ package com.example.hello_world_with_mvc.service;
 
 import java.util.List;
 
+import com.example.hello_world_with_mvc.entity.Group;
 import com.example.hello_world_with_mvc.entity.User;
 
 public interface DatabaseService {
@@ -13,6 +14,9 @@ public interface DatabaseService {
     public String getNameByCid(String cid);
     public List<String> getCidByGid(String gid);
     public List<String> getGidByCid(String gid);
+    public String getGnamebyGid(String gid);
+    public Group getGroupGid(String gid);
+
 
     
 }

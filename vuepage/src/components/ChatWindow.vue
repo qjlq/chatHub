@@ -11,7 +11,7 @@
                         </div>
                     </div>
                     <div class="message-text">
-                        <p style="font-size: 14px;" dir="auto">{{tester.msg}}</p>
+                        <p style="font-size: 14px; text-align:left ;" dir="auto">{{tester.msg}}</p>
                     </div>
                 </div>
             </div>
@@ -24,7 +24,7 @@
                         </div>
                     </div>
                     <div class="message-text">
-                        <p style="font-size: 14px;" dir="auto">{{tester.msg}}</p>
+                        <p style="font-size: 14px; text-align:left;" dir="auto">{{tester.msg}}</p>
                     </div>
                 </div>
             </div>
@@ -62,11 +62,12 @@
 // import MessageBlock from './MessageBlock.vue'
 //let cid = 0
 // var cid = Math.round(Math.random()*100);
-var scid = '';
+var scid = '1';
 var togid = '';
 export default {
     props:{
         cid:String
+        
     },
     data() {
         return {
@@ -122,7 +123,9 @@ export default {
             if(message.code == 1){
                 console.log("get a message")
             }else if(message.code == 0){
-                this.name = message.name;
+                if(message.cid == this.cid.toString()){
+                    this.name = message.name;
+                }
                 message.name = "系统信息"
             }else if(message.code == 2){
                 message.name = "系统信息"

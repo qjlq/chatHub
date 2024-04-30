@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import com.example.hello_world_with_mvc.entity.Group;
 import com.example.hello_world_with_mvc.entity.User;
 import com.example.hello_world_with_mvc.service.DatabaseService;
 
@@ -82,5 +83,42 @@ public class DatabaseServiceImpl implements DatabaseService {
             return null;
         }
     }
+
+    @Override
+    public String getGnamebyGid(String gid){
+        try {
+            String sql = "select groupname from chat.groupinfo where gid = ?";
+            List<String> result = jdbcTemplate.query(sql,(resultset,i)->{
+                return resultset.getString("username");
+            },gid);
+            return result.get(0);
+        } catch (Exception e) {
+            log.info("{} gid does not exit error:{}",gid,e.toString());
+            return null;
+        }
+    }
+
+    @Override
+    public Group getGroupGid(String gid){
+        try {
+            String sql = "select groupname,ccid,number from chat.groupinfo where gid = ?";
+            List<Group> result = jdbcTemplate.query(sql,(resultset,i)->{
+                Group group = new Group();
+                //user.setUserId(resultset.getString("gid"));
+                group.setgroupname(resultset.getString("groupname"));
+                group.setcid(resultset.getString("ccid"));
+                group.setnumber(resultset.getString("number"));
+
+                return group;
+            },gid);
+            return result.get(0);
+        } catch (Exception e) {
+            Group group = new Group();
+            group.setgid(null);
+            log.info("{} user does ont exit error:{}",gid,e.toString());
+            return group;
+        }
+    }
+
     
 }

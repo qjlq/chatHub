@@ -2,8 +2,10 @@ package com.example.hello_world_with_mvc.service;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -21,6 +23,9 @@ import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
 import lombok.extern.slf4j.Slf4j;
 
+import com.example.hello_world_with_mvc.entity.Group;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -47,8 +52,8 @@ public class WebSocketServer {
 
     @Autowired //连接databaseservice
     private DatabaseService database;
+    private static WebSocketServer serverHandler ; //service to service 要加
 
-    private static WebSocketServer serverHandler ;
     @PostConstruct //通过@PostConstruct实现初始化bean之前进行的操作
     public void init() {   //普通的autowired 引用database 会报错 null
         serverHandler = this;  
@@ -66,12 +71,17 @@ public class WebSocketServer {
     private static Map<String, Session> onlineSessionClientMap = new ConcurrentHashMap<>();
     //存放已登录用户所在的群组及其拥有的成员
     private Map<String, List<String>> gidMapCid = new ConcurrentHashMap<>();
+    //存放有该用户在的群主列表
+    private Set<String> gidList;
+
+    private Map<String, Group> gidName = new ConcurrentHashMap<>();
     /**
      * 连接cid和连接会话
      */
     public String cid;
     public String fromname;
     private Session session;
+    private Gson gson = new Gson();
 
     /**
      * 连接建立成功调用的方法。由前端<code>new WebSocket</code>触发
@@ -104,12 +114,22 @@ public class WebSocketServer {
         //         System.err.println("cid:"+gcid);
         //     });
         // });
+
+        // JsonObject gidlist = new JsonObject();
+        // gidMapCid.forEach((gid,cidlist)->{
+        //     System.err.println(cidlist.toString());
+        //     gidlist.addProperty(gid, cidlist.toString());
+        // });
+        // System.err.println(gidlist.toString());
+
         this.cid = cid;
         this.session = session;
         this.fromname = serverHandler.database.getNameByCid(cid);
         sendWithform(session, cid, "",fromname, "你上线了", 0);
+        sendWithform(session, 3);
         String message = fromname+ " 上线了";
         sendToAll(message,0);
+        sendOnlineList(session);
         log.info("{} 在线数：{} ==> listening：session_id = {}， cid = {}",getTimeString(), onlineSessionClientCount, session.getId(), cid);
     }
 
@@ -154,7 +174,9 @@ public class WebSocketServer {
         log.info("{} recieve:fromcid = {} ==>tocid = {} and togid{}, message = {}",getTimeString(), cid, tocid,gid, msg);
 
         /**
-         * 模拟约定：如果未指定cid信息，则群发，否则就单独发送
+         * 约定：如果未指定cid和gid，则群发
+         * cid != null and gid == null 发给指定的人
+         * gid != null 发到群内
          */
         if (tocid == null || tocid == "" || "".equalsIgnoreCase(tocid)) {
             if(gid == null || gid == "" || "".equalsIgnoreCase(gid)){
@@ -165,6 +187,7 @@ public class WebSocketServer {
             }
         } else {
             sendToOne(tocid, msg);
+            //log.info("toOne"+ tocid +  msg);
         }
     }
 
@@ -211,15 +234,19 @@ public class WebSocketServer {
     }
 //发送群消息
     private void sendToGroup(String message,String gid) {
-        // 遍历在线map集合
-        onlineSessionClientMap.forEach((onlinecid, toSession) -> {
-            // 排除掉自己
-            if (!cid.equalsIgnoreCase(onlinecid)) {
-                log.info("{} send: cid = {} ==> tocid = {}, message = {}",getTimeString(), cid, onlinecid, message);
-                // toSession.getAsyncRemote().sendText(message);
-                sendWithform(toSession,cid,gid,fromname,message,1);
-            }
+
+        onlineSessionClientMap.forEach((onlinecid, toSession) -> { 
+            gidMapCid.get(gid).forEach(lcid -> {
+            // 遍历在线map集合
+            //log.info("acc"+this.cid);
+                if (lcid.equalsIgnoreCase(onlinecid) && onlinecid != this.cid) {
+                    log.info("{} gsend: cid = {} ==> tocid = {}, message = {}",getTimeString(), cid, onlinecid, message);
+                    // toSession.getAsyncRemote().sendText(message);
+                    sendWithform(toSession,cid,gid,fromname,message,1);
+                }
+            });
         });
+
     }
 
     /**
@@ -238,7 +265,7 @@ public class WebSocketServer {
         // 异步发送
         log.info("{} personal send: ==> tocid = {}, message = {}",getTimeString(), tocid, message);
         // toSession.getAsyncRemote().sendText(message);
-        sendWithform(toSession,tocid,"",fromname,message,1);
+        sendWithform(toSession,this.cid,"",fromname,message,1);
         /*
         // 同步发送
         try {
@@ -249,13 +276,34 @@ public class WebSocketServer {
         }*/
     }
     //发送的数据格式
-    //{"cid":"user","gid":"gid","name":"name","message":"hello websocket","code":"code"}
+    //{"cid":"user","gid":"gid","name":"name","totallist":"totallist","message":"hello websocket","code":"code"}
     private void sendWithform(Session session,String cid,String gid,String name, String msg,int code) {
         JsonObject message = new JsonObject();
         message.addProperty("cid",cid);
         message.addProperty("gid",gid);
         message.addProperty("name",name);
         message.addProperty("msg",msg);
+        //message.addProperty("totallist","");
+        message.addProperty("code",code);
+        session.getAsyncRemote().sendText(message.toString());
+    }
+
+    private void sendWithform(Session session,int code) { //发送用户的群主信息
+        JsonObject message = new JsonObject();
+        JsonObject totallist = new JsonObject();
+        // message.addProperty("cid","");
+        // message.addProperty("gid","");
+        // message.addProperty("name","");
+        // message.addProperty("msg","");
+        
+        gidMapCid.forEach((gid,cidlist)->{
+            //System.err.println(cidlist.toString());
+            totallist.addProperty(gid, cidlist.toString());
+        });
+        message.add("totallist",totallist); //有list 所以不直接用tojson
+        //message.addProperty("totallist",gson.toJson(gidMapCid));
+        //message.addProperty("gidlist", this.gidList.toString());
+        message.addProperty("gidinfo",gson.toJson(gidName));
         message.addProperty("code",code);
         session.getAsyncRemote().sendText(message.toString());
     }
@@ -266,11 +314,25 @@ public class WebSocketServer {
         return formatter.format(date);
     }
 
+    
     private void initGroup(String cid){
-        List<String> gidList = serverHandler.database.getGidByCid(cid); //error:com.example.hello_world_with_mvc.service.WebSocketServer.database" is null 参考:https://www.cnblogs.com/shizhe99/p/15579881.html
+        this.gidList = new HashSet<String>(serverHandler.database.getGidByCid(cid)); //error:com.example.hello_world_with_mvc.service.WebSocketServer.database" is null 参考:https://www.cnblogs.com/shizhe99/p/15579881.html
         gidList.forEach(gid -> {
-            if (!gidMapCid.containsKey(gid)){
-                gidMapCid.put(gid, serverHandler.database.getCidByGid(gid));
+            // if (!gidMapCid.containsKey(gid)){
+            //     gidMapCid.put(gid, serverHandler.database.getCidByGid(gid));
+            // }
+            gidMapCid.put(gid, serverHandler.database.getCidByGid(gid));
+            gidName.put(gid, serverHandler.database.getGroupGid(gid));
+            //System.err.println(serverHandler.database.getGroupGid(gid).getgroupname());
+        });
+    }
+
+    private void sendOnlineList(Session session){
+        onlineSessionClientMap.forEach((onlinecid, toSession) -> {
+            //log.info(onlinecid);
+            if (!onlinecid.equals(this.cid)){
+                //log.info(onlinecid);
+                sendWithform(session, onlinecid, "", serverHandler.database.getNameByCid(onlinecid), "", 0);
             }
         });
     }
