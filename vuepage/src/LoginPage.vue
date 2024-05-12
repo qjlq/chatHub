@@ -30,11 +30,14 @@ import axios from 'axios';
 // import { useRouter } from 'vue-router'
 // const router = useRouter();
 import router from './router.config.js'
-
-
+// import store from './store/'
+// import { useStore } from 'vuex'
+// const store = useStore();
 export default {
     // setup() {
-    //     const router = useRouter();
+    //     //const router = useRouter();
+
+    //     const store = useStore();
     // },
     data() {
         return {
@@ -68,6 +71,7 @@ export default {
                         query:{cid:this.cid}
                     });
                     console.log("test")
+                    this.$store.commit('updateCid',this.cid)
                 }else {
                     router.push('login');
                 }

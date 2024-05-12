@@ -64,11 +64,22 @@
 // var cid = Math.round(Math.random()*100);
 var scid = '1';
 var togid = '';
+// import { inject } from "vue";
+// var {cidMapName,cidMapNameTrack} = inject("shareDate");
+
+// var totallist = new Map();
+// var gidmapginfo = new Map();
 export default {
+    // setup() {
+    //     var {cidMapName,cidMapNameTrack} = inject("shareDate")
+    // },
     props:{
-        cid:String
-        
+        cid:String,
+        // name:String,
+        // gid:String,
+        // socket:socket
     },
+
     data() {
         return {
             newMsg:'',
@@ -120,18 +131,81 @@ export default {
             // if(message.cid == this.cid.toString()){
             //     message.cid = "系统信息"
             // }
-            if(message.code == 1){
+            var code = parseInt(message.code)
+            if(code != 3){
+                console.log("code0: " + message.code)
+                console.log("store cid = " + this.$store.state.user.cid)
+                if(code == 1){
                 console.log("get a message")
-            }else if(message.code == 0){
-                if(message.cid == this.cid.toString()){
-                    this.name = message.name;
+                }else if(code == 0){
+                    console.log(message.code)
+
+                    if(message.cid == this.cid.toString()){
+                        this.name = message.name;
+                    }
+                    message.name = "系统信息"
+                }else if(message.code == 2){
+                    message.name = "系统信息"
                 }
-                message.name = "系统信息"
-            }else if(message.code == 2){
-                message.name = "系统信息"
+                this.test.push({cid : message.cid,name : message.name, msg: message.msg,left:true});
+                this.scollToButtom();
+            }else {
+                //console.log("totallist: " + message.totallist)
+                console.log("code3: " + code)
+                for(var val in message.totallist){
+                    // console.log(val + " "+message.totallist[val])
+                     
+                    //console.log("index: "+message.totallist[val][2])
+                    //var list = message.totallist[val].replace("[","").replace("]","").split(",")
+                    // list.forEach(function(i){
+                    //     console.log(i)
+                    // })
+
+                    //totallist.set(val,message.totallist[val])
+                    this.$store.commit('updatecidMapTotallist', [val,message.totallist[val].replace("[","").replace("]","").split(",")])
+
+                }
+                
+                var gidinfo = JSON.parse(message.gidinfo)
+                //console.log("gidinfo" + gidinfo)
+                for(var val2 in gidinfo){
+                    var info = {
+                        groupname : gidinfo[val2].groupname,
+                        cid : gidinfo[val2].cid,
+                        number : gidinfo[val2].number
+                    }
+                    //console.log(gidinfo[val2].groupname)
+                    //gidmapginfo.set(val2,info)
+                    this.$store.commit('updatecidMapGidinfo',[val2,info])
+                    this.$store.commit('addTabs',[val2,info.groupname])
+
+
+                }
+
+                // this.$store.commit('updateGidState',true)
+                // this.$store.commit('test',"testchange")
+
+
+                console.log("commit")
+                this.$store.state.user.tabs.forEach(function(value){
+                    console.log( value.gid + value.groupname)
+                })
+                // this.$store.commit('updatecidMapTotallist',totallist)
+                // this.$store.commit('updatecidMapGidinfo',gidmapginfo)
+
+                // JSON.parse(message.totallist).forEach(element => {
+                //     console.log(element)
+                // });
+                
+                // this.$store.state.user.cidMapTotallist.forEach(function(value, key) {
+                //     console.log(key, value);
+
+                //     value.forEach(function(list){
+                //         console.log(list)
+                //     })
+                // });
             }
-            this.test.push({cid : message.cid,name : message.name, msg: message.msg,left:true});
-            this.scollToButtom();
+
         },
         onInput(e){
             this.newMsg = e.target.value

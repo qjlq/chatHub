@@ -16,7 +16,11 @@
 </template>
 <script>
 export default {
-    
+    methods: {
+        updatedGroup(){
+            
+        }
+    },
 }
 </script>
 <style lang="css">

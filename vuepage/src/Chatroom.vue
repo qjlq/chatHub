@@ -1,10 +1,19 @@
 <template>
+
   <html style="--sidebar-width: 300px;" lang="en">
     <body>
       <div class="window">
-                  <div class="left-bar">tmp</div>
+                  <div class="left-bar">
+                    <button
+                    v-for="tab in this.$store.state.user.tabs"
+                    :key="tab.gid"
+                    :class="['tab-button', { active: currentTab === tab.groupname }]"
+                    @click="currentTab(tab.gid)"
+                    >
+                    {{ tab.groupname }}
+                    </button>
+                  </div>    
         <div class="chat">
-
           <myHeader/>
           <ChatWindow :cid="cid"/>
         </div>
@@ -18,6 +27,7 @@
   <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
   
 
+
 </template>
 
 <script>
@@ -28,19 +38,82 @@
   // const router = useRouter()
   // const cid = router.currentRoute.value.query.cid;
   import router from './router.config.js'
-
+  //import {computed} from 'vue'
+  // import { ref, provide } from "vue";
+  
+  // var cidMapName = ref(new Map());
+  // var cidMApNameTrack = ref(0);
+  // var tabs = [
+  //         {gid:'',groupname:''}
+  //       ]
   export default {
     // name: 'App',
+    // setup() {
+    //   provide("ShareDate",{cidMapName,cidMApNameTrack})
+    // },
     data() {
       return {
-        cid:router.currentRoute.value.query.cid
+        cid:router.currentRoute.value.query.cid,
+        // tabs:[
+        //   {gid:'',groupname:''}
+        // ],
       }
     },
     components: {
       // HelloWorld
       myHeader,
       ChatWindow,
-    }
+    },
+    methods: {
+      currentTab(gid){
+        this.$store.commit('changeCurrentRoom',gid)
+      },
+    },
+  //   methods: {
+  //     // test(){
+  //     //   var x = cidMApNameTrack
+  //     //   console.log(x)
+  //     //   cidMapName.value.forEach(function(value, key) {
+  //     //       console.log(key, value);
+  //     //   });
+  //     //}
+  //     updatedGroup(){
+  //           //var gidinfo = computed(() => this.$store.user.cidMapGidinfo)
+  //           console.log("#####test#####")
+  //           //this.tabs.put({gid:'123',groupname:'test'})
+
+  //           this.$store.state.user.cidMapGidinfo.forEach(function(value, key) {
+  //             //this.tabs.push({ gid : key, groupname : value.groupname})
+  //             console.log(value, key)
+  //           });
+  //           this.tabs.push({ gid : "1", groupname : "value.groupname"})
+  //     }
+  //   },
+  //   computed: {  
+  //     Obj() {  //  计算属性
+  //       // try {
+  //       //   if(this.$store.user.cidMapGidinfo != null)
+  //       //   return 1; //  Vuex 中定义的属性
+  //       //   return 0;
+  //       // } catch (error) {
+  //       //   console.log(error);
+  //       //   return 0;
+  //       // }
+  //       // console.log("state")
+  //       // return this.$store.state.user.GidinfoState
+  //       //return this.$store.state.user.cidMapGidinfo 
+  //       return this.$store.state.user.test
+  //     }
+  //   },
+  //   watch:{
+  //     Obj(newVal,oldVal) {
+  //       console.log("test")
+
+  //       console.log(newVal,oldVal)
+  //       this.updatedGroup();  //   需要调用的方法
+  //       this.$store.commit('updateGidState',false);
+  //     }
+  //   },
   }
   
 </script>
@@ -99,7 +172,11 @@ body{
   flex-direction: column;
   box-shadow: inset -2px 0 2px 0 rgba(0,0,0,.05);
   position: relative;
-  transition: width .05s
+  transition: width .05s;
+  overflow-y: auto;
+}
+.left-button{
+
 }
 
 </style>

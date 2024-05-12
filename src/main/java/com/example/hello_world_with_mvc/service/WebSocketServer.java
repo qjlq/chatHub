@@ -315,7 +315,7 @@ public class WebSocketServer {
     }
 
     
-    private void initGroup(String cid){
+    private void initGroup(String cid){//获取用户所在群组的成员
         this.gidList = new HashSet<String>(serverHandler.database.getGidByCid(cid)); //error:com.example.hello_world_with_mvc.service.WebSocketServer.database" is null 参考:https://www.cnblogs.com/shizhe99/p/15579881.html
         gidList.forEach(gid -> {
             // if (!gidMapCid.containsKey(gid)){
