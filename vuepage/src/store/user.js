@@ -7,10 +7,11 @@ const ModuleUser = {
         // GidinfoState: false,
         // test: "active",
         tabs:[
-          {gid:'',groupname:''}
+          {id:'',groupname:'',type:''}
         ],
         chatRoom: new Map(),
-        currentRoom: '',
+        currentRoom: 'ALL',
+        // array : [{cid: "test",name: 'name',msg: 'test message',left:true}],
     },
    
     getters: {
@@ -37,12 +38,29 @@ const ModuleUser = {
       // test(state,value){
       //   state.test = value
       // },
-      addTabs(state,[gid,groupname]){
-        state.tabs.push({gid : gid, groupname : groupname})
+      addTabs(state,[gid,groupname,type]){
+        state.tabs.push({gid : gid, groupname : groupname,type : type})
       },
-      changeCurrentRoom(state,gid){
-        state.currentRoom = gid
+      changeCurrentRoom(state,id){
+        state.currentRoom = id
+      },
+      changeType(state,type){
+        state.type = type
       }
+      // updateChatRoom(state,[key,value]){
+      //   state.Array.push(value)
+      //   state.chatRoom.set(key,state.Array)
+      //   console.log("array1: " + state.Array)
+      //   state.Array.put()
+      //   console.log("array2: " + state.Array)
+
+      // },
+      // showmessage(state,[id,msg]){
+      //   console.log(state.chatRoom[id])
+      //   // state.array = state.chatRoom.get(id)
+      //   // state.array.push(msg)
+      //   state.chatRoom[id] = state.chatRoom[id].push(msg)
+      // }
 
     },
    

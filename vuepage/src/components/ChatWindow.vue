@@ -1,6 +1,6 @@
 <template lang="">
     <div class="window-show" id = "window-show">
-        <div v-for="tester in test"
+        <div v-for="tester in test[this.idMapArray.get(this.$store.state.user.currentRoom)]"
             :key = "tester.cid"    
         class="message-body">   
             <div v-if="tester.left" class="message-container">
@@ -62,8 +62,8 @@
 // import MessageBlock from './MessageBlock.vue'
 //let cid = 0
 // var cid = Math.round(Math.random()*100);
-var scid = '1';
-var togid = '';
+
+
 // import { inject } from "vue";
 // var {cidMapName,cidMapNameTrack} = inject("shareDate");
 
@@ -73,6 +73,7 @@ export default {
     // setup() {
     //     var {cidMapName,cidMapNameTrack} = inject("shareDate")
     // },
+
     props:{
         cid:String,
         // name:String,
@@ -83,11 +84,12 @@ export default {
     data() {
         return {
             newMsg:'',
-            test: [
-            {cid: this.cid,name: 'name',msg: 'test message',left:true}
-            ],
+            test: [[{cid: this.cid,name: 'name',msg: 'test message',left:true}]],
+            cidtext:[[]],
             socket:null,
             name:null,
+            idMapArray:new Map()
+
         }
 
     },
@@ -108,17 +110,39 @@ export default {
             this.socket.onerror = this.Onerror;
             this.socket.onmessage = this.receiveMsg;
             this.socket.onclose = this.Onclose;
+            //this.$store.commit('updateChatRoom',[this.cid,test.push({cid: this.cid ,name: 'name',msg: 'test message',left:true})])
+            this.$store.commit('addTabs',["ALL","ALL",''])
+            //console.log("room: " + this.$store.state.user.chatRoom[this.cid])
+            this.idMapArray.set("ALL",0)
+
         },
         Onopen(){
             console.log("Socket 已打开");
+            //this.$store.commit('updateChatRoom',[this.cid,test.push({cid: this.cid ,name: 'name',msg: 'test message',left:true})])
+            //this.$store.commit('addTabs',[this.cid,"ALL"])
+            //console.log("room: " + this.$store.state.user.chatRoom[this.cid])
+
+
         },
         sendMsg(){
             if (this.newMsg != ''){
                 // this.test.push({cid : cid++,msg: this.newMsg,left:false})
                 // this.newMsg = ''
-                this.test.push({cid : this.cid,name : this.name ,msg: this.newMsg,left:false})
+                //this.test.push({cid : this.cid,name : this.name ,msg: this.newMsg,left:false})
+
+
+                //this.$store.commit("showmessage",[this.$store.state.user.currentRoom,{cid : this.cid,name : this.name ,msg: this.newMsg,left:false}])
+                //this.idMapArray[this.cid] = this.idMapArray.get(this.cid).push({cid : this.cid,name : this.name ,msg: this.newMsg,left:false})
+                this.test[this.idMapArray.get(this.$store.state.user.currentRoom)].push({cid : this.cid,name : this.name ,msg: this.newMsg,left:false})
                 this.scollToButtom()
-                var msg = '{"cid":"' + scid + '","gid":"' + togid + '","message":"' + this.newMsg + '"}'
+                var tocid = '';
+                var togid = '';
+                if(this.$store.state.user.type == 'gid'){
+                    togid = this.$store.state.user.currentRoom
+                }else if(this.$store.state.user.type == 'cid'){
+                    tocid = this.$store.state.user.currentRoom
+                }
+                var msg = '{"cid":"' + tocid + '","gid":"' + togid + '","message":"' + this.newMsg + '"}'
                 this.socket.send(msg)
                 this.newMsg = ''
             
@@ -132,11 +156,17 @@ export default {
             //     message.cid = "系统信息"
             // }
             var code = parseInt(message.code)
+            var id = "ALL"
             if(code != 3){
                 console.log("code0: " + message.code)
                 console.log("store cid = " + this.$store.state.user.cid)
                 if(code == 1){
-                console.log("get a message")
+                    console.log("get a message")
+                    id = "ALL"
+                    if(message.gid != null || message.gid != undefined || message.gid != ''){
+                        id = message.gid
+
+                    }
                 }else if(code == 0){
                     console.log(message.code)
 
@@ -147,7 +177,12 @@ export default {
                 }else if(message.code == 2){
                     message.name = "系统信息"
                 }
-                this.test.push({cid : message.cid,name : message.name, msg: message.msg,left:true});
+                //this.test.push({cid : message.cid,name : message.name, msg: message.msg,left:true});
+                //this.idMapArray[this.$store.state.user.currentRoom] = this.idMapArray.get(this.$store.state.user.currentRoom).push({cid : message.cid,name : message.name, msg: message.msg,left:true})
+                this.test[this.idMapArray.get(id)].push({cid : message.cid,name : message.name, msg: message.msg,left:true});
+                
+                //this.$store.commit("showmessage",[this.$store.state.user.currentRoom,{cid : message.cid,name : message.name, msg: message.msg,left:true}])
+                
                 this.scollToButtom();
             }else {
                 //console.log("totallist: " + message.totallist)
@@ -167,17 +202,28 @@ export default {
                 }
                 
                 var gidinfo = JSON.parse(message.gidinfo)
-                //console.log("gidinfo" + gidinfo)
+
                 for(var val2 in gidinfo){
                     var info = {
                         groupname : gidinfo[val2].groupname,
                         cid : gidinfo[val2].cid,
                         number : gidinfo[val2].number
                     }
-                    //console.log(gidinfo[val2].groupname)
+                    // console.log("name: "+gidinfo[val2].groupname)
+                    // console.log("name: "+gidinfo[val2].cid + " : " + info.cid)
+                    
                     //gidmapginfo.set(val2,info)
+                    //if( !this.idMapArray.has(gidinfo[val2].cid) ){
+                        
+                    // console.log("add: " + gidinfo[val2].cid )
+                    // console.log("size: " + this.idMapArray.size )
+                    // var index = this.idMapArray.size
+                    // console.log("index: " + index )
+
+                    this.test.push([{cid: this.cid,name: 'name',msg: 'test message',left:true}])
+                    this.idMapArray.set(val2,this.idMapArray.size)
                     this.$store.commit('updatecidMapGidinfo',[val2,info])
-                    this.$store.commit('addTabs',[val2,info.groupname])
+                    this.$store.commit('addTabs',[val2,info.groupname,'gid'])
 
 
                 }
@@ -187,9 +233,9 @@ export default {
 
 
                 console.log("commit")
-                this.$store.state.user.tabs.forEach(function(value){
-                    console.log( value.gid + value.groupname)
-                })
+                // this.$store.state.user.tabs.forEach(function(value){
+                //     console.log( value.gid + value.groupname)
+                // })
                 // this.$store.commit('updatecidMapTotallist',totallist)
                 // this.$store.commit('updatecidMapGidinfo',gidmapginfo)
 
@@ -197,13 +243,13 @@ export default {
                 //     console.log(element)
                 // });
                 
-                // this.$store.state.user.cidMapTotallist.forEach(function(value, key) {
-                //     console.log(key, value);
+                this.$store.state.user.cidMapTotallist.forEach(function(value, key) {
+                    console.log(key, value);
 
-                //     value.forEach(function(list){
-                //         console.log(list)
-                //     })
-                // });
+                    value.forEach(function(list){
+                        console.log(list)
+                    })
+                });
             }
 
         },

@@ -8,7 +8,7 @@
                     v-for="tab in this.$store.state.user.tabs"
                     :key="tab.gid"
                     :class="['tab-button', { active: currentTab === tab.groupname }]"
-                    @click="currentTab(tab.gid)"
+                    @click="currentTab(tab.gid,tab.type)"
                     >
                     {{ tab.groupname }}
                     </button>
@@ -65,8 +65,10 @@
       ChatWindow,
     },
     methods: {
-      currentTab(gid){
+      currentTab(gid,type){
         this.$store.commit('changeCurrentRoom',gid)
+        this.$store.commit('changeType',type)
+
       },
     },
   //   methods: {
