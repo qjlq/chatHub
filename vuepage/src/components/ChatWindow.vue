@@ -85,10 +85,11 @@ export default {
         return {
             newMsg:'',
             test: [[{cid: this.cid,name: 'name',msg: 'test message',left:true}]],
-            cidtext:[[]],
             socket:null,
             name:null,
-            idMapArray:new Map()
+            idMapArray:new Map(),
+            cidMapArray:new Map()
+
 
         }
 
@@ -111,7 +112,7 @@ export default {
             this.socket.onmessage = this.receiveMsg;
             this.socket.onclose = this.Onclose;
             //this.$store.commit('updateChatRoom',[this.cid,test.push({cid: this.cid ,name: 'name',msg: 'test message',left:true})])
-            this.$store.commit('addTabs',["ALL","ALL",''])
+            this.$store.commit('addTabs',["ALL","ALL",'ALL',true])
             //console.log("room: " + this.$store.state.user.chatRoom[this.cid])
             this.idMapArray.set("ALL",0)
 
@@ -160,26 +161,39 @@ export default {
             if(code != 3){
                 console.log("code0: " + message.code)
                 console.log("store cid = " + this.$store.state.user.cid)
-                if(code == 1){
-                    console.log("get a message")
-                    id = "ALL"
-                    if(message.gid != null || message.gid != undefined || message.gid != ''){
-                        id = message.gid
-
+                if(message.msg != null && message.msg != undefined && message.msg != ''){
+                    if(code == 1){
+                        console.log("get a message")
+                        id = "ALL"
+                        if(message.gid != null && message.gid != undefined && message.gid != ''){
+                            id = message.gid
+                        }else if (message.cid != null && message.cid != undefined && message.cid != ''){
+                            id = message.cid
+                        }
+                        console.log("re: " + id)
+                    }else if(message.code == 2){
+                        message.name = "系统信息"
+                        
+                    }else if(code == 0){
+                        console.log(message.code)
+                        if(message.cid == this.cid.toString()){
+                            this.name = message.name;
+                        }else if(!this.idMapArray.has(message.cid)){
+                            this.test.push([{cid: message.cid,name: message.name, msg: 'hi',left:true}])
+                            this.idMapArray.set(message.cid,this.idMapArray.size)
+                            this.$store.commit('addTabs',[message.cid,message.name,'cid',true])
+                        }
+                        message.name = "系统信息"
                     }
-                }else if(code == 0){
-                    console.log(message.code)
+                    this.test[this.idMapArray.get(id)].push({cid : message.cid,name : message.name, msg: message.msg,left:true});
+                } else if(code == 0){
+                        this.test.push([{cid: message.cid,name: message.name, msg: 'hi',left:true}])
+                        this.idMapArray.set(message.cid,this.idMapArray.size)
+                        this.$store.commit('addTabs',[message.cid,message.name,'cid',true])
 
-                    if(message.cid == this.cid.toString()){
-                        this.name = message.name;
-                    }
-                    message.name = "系统信息"
-                }else if(message.code == 2){
-                    message.name = "系统信息"
                 }
                 //this.test.push({cid : message.cid,name : message.name, msg: message.msg,left:true});
                 //this.idMapArray[this.$store.state.user.currentRoom] = this.idMapArray.get(this.$store.state.user.currentRoom).push({cid : message.cid,name : message.name, msg: message.msg,left:true})
-                this.test[this.idMapArray.get(id)].push({cid : message.cid,name : message.name, msg: message.msg,left:true});
                 
                 //this.$store.commit("showmessage",[this.$store.state.user.currentRoom,{cid : message.cid,name : message.name, msg: message.msg,left:true}])
                 
@@ -214,18 +228,16 @@ export default {
                     
                     //gidmapginfo.set(val2,info)
                     //if( !this.idMapArray.has(gidinfo[val2].cid) ){
-                        
+
                     // console.log("add: " + gidinfo[val2].cid )
                     // console.log("size: " + this.idMapArray.size )
                     // var index = this.idMapArray.size
                     // console.log("index: " + index )
-
                     this.test.push([{cid: this.cid,name: 'name',msg: 'test message',left:true}])
                     this.idMapArray.set(val2,this.idMapArray.size)
                     this.$store.commit('updatecidMapGidinfo',[val2,info])
                     this.$store.commit('addTabs',[val2,info.groupname,'gid'])
-
-
+                    
                 }
 
                 // this.$store.commit('updateGidState',true)

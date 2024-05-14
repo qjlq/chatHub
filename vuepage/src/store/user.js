@@ -38,8 +38,18 @@ const ModuleUser = {
       // test(state,value){
       //   state.test = value
       // },
-      addTabs(state,[gid,groupname,type]){
-        state.tabs.push({gid : gid, groupname : groupname,type : type})
+      addTabs(state,[gid,groupname,type,color]){
+        state.tabs.push({gid : gid, groupname : groupname,type : type,color : color})
+      },
+      changeTabColor(state,[gid,color]){
+        state.tabs.forEach(element => {
+          if(element.gid == gid){
+            element.color = color
+          }
+        });
+      },
+      minusTabs(state){
+        state
       },
       changeCurrentRoom(state,id){
         state.currentRoom = id

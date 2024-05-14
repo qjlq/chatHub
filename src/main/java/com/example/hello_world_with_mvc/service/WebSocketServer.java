@@ -90,6 +90,8 @@ public class WebSocketServer {
      * @param session 与某个客户端的连接会话，需要通过它来给客户端发送消息
      */
     @OnOpen
+    //public void onOpen(@PathParam("cid") String cid, Session session) {
+
     public void onOpen(@PathParam("cid") String cid, Session session) {
         /**
          * session.getId()：当前session会话会自动生成一个id，从0开始累加的。
@@ -101,6 +103,8 @@ public class WebSocketServer {
         if (!onlineSessionClientMap.containsKey(cid)){
             onlineSessionClientMap.put(cid, session);
             onlineSessionClientCount.incrementAndGet();
+        
+        
         }
 
 
@@ -140,12 +144,14 @@ public class WebSocketServer {
      * @param session
      */
     @OnClose
-    public void onClose(@PathParam("cid") String cid, Session session) {
+    //public void onClose(@PathParam("cid") String cid, Session session) {
+    public void onClose(Session session) {
+
         //onlineSessionIdClientMap.remove(session.getId());
         // 从 Map中移除
         String message = fromname+ " 下线了";
 
-        onlineSessionClientMap.remove(cid);
+        onlineSessionClientMap.remove(this.cid);
 
         //在线数减1
         onlineSessionClientCount.decrementAndGet();
@@ -216,7 +222,7 @@ public class WebSocketServer {
             if (!cid.equalsIgnoreCase(onlinecid)) {
                 log.info("{} send: cid = {} ==> tocid = {}, message = {}",getTimeString(), cid, onlinecid, message);
                 // toSession.getAsyncRemote().sendText(message);
-                sendWithform(toSession,cid,"",fromname,message,1);
+                sendWithform(toSession,cid,"",fromname,message,1); //defualt code 1
             }
         });
     }
@@ -276,7 +282,7 @@ public class WebSocketServer {
         }*/
     }
     //发送的数据格式
-    //{"cid":"user","gid":"gid","name":"name","totallist":"totallist","message":"hello websocket","code":"code"}
+    //{"cid":"user","gid":"gid","name":"name","message":"hello websocket","code":"code"}
     private void sendWithform(Session session,String cid,String gid,String name, String msg,int code) {
         JsonObject message = new JsonObject();
         message.addProperty("cid",cid);
@@ -288,6 +294,8 @@ public class WebSocketServer {
         session.getAsyncRemote().sendText(message.toString());
     }
 
+    //发送的数据格式
+    //{"totallist":"totallist","gidinfo":"info","code":"code"}
     private void sendWithform(Session session,int code) { //发送用户的群主信息
         JsonObject message = new JsonObject();
         JsonObject totallist = new JsonObject();
