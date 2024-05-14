@@ -292,7 +292,9 @@ public class WebSocketServer {
         message.addProperty("msg",msg);
         //message.addProperty("totallist","");
         message.addProperty("code",code);
-        session.getAsyncRemote().sendText(message.toString());
+        synchronized(session){ //防止冲突
+            session.getAsyncRemote().sendText(message.toString());
+        }
     }
 
     //发送的数据格式
@@ -314,7 +316,10 @@ public class WebSocketServer {
         //message.addProperty("gidlist", this.gidList.toString());
         message.addProperty("gidinfo",gson.toJson(gidName));
         message.addProperty("code",code);
-        session.getAsyncRemote().sendText(message.toString());
+        synchronized(session){ //防止冲突
+            session.getAsyncRemote().sendText(message.toString());
+        }
+        
     }
 
     private String getTimeString(){

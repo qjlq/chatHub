@@ -3,16 +3,16 @@
   <html style="--sidebar-width: 300px;" lang="en">
     <body>
       <div class="window">
-                  <div class="left-bar">
-                    <button
-                    v-for="tab in this.$store.state.user.tabs"
-                    :key="tab.gid"
-                    :class="['tab-button', { active: currentTab === tab.groupname }]"
-                    @click="currentTab(tab.gid,tab.type)"
-                    >
-                    {{ tab.groupname }}
-                    </button>
-                  </div>    
+              <div class="left-bar">
+                <button
+                v-for="tab in this.$store.state.user.tabs"
+                :key="tab.gid"
+                :class="['tab-button', { active: currentTab === tab.groupname }]"
+                @click="currentTab(tab.gid,tab.type)"
+                >
+                {{ tab.groupname }}
+                </button>
+              </div>    
         <div class="chat">
           <myHeader/>
           <ChatWindow :cid="cid"/>
