@@ -167,8 +167,6 @@ export default {
                         id = "ALL"
                         if(message.gid != null && message.gid != undefined && message.gid != ''){
                             id = message.gid
-                        }else if (message.cid != null && message.cid != undefined && message.cid != ''){
-                            id = message.cid
                         }
                         console.log("re: " + id)
                     }else if(message.code == 2){
@@ -184,6 +182,8 @@ export default {
                             this.$store.commit('addTabs',[message.cid,message.name,'cid',true])
                         }
                         message.name = "系统信息"
+                    }else if (code == 4 && message.cid != null && message.cid != undefined && message.cid != ''){
+                            id = message.cid
                     }
                     this.test[this.idMapArray.get(id)].push({cid : message.cid,name : message.name, msg: message.msg,left:true});
                 } else if(code == 0){

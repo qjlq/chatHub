@@ -43,6 +43,7 @@ import com.google.gson.JsonParser;
  * 1:普通信息
  * 2：用户下线
  * 3：群组列表
+ * 4：个人消息
  */
 
 @Component
@@ -271,7 +272,7 @@ public class WebSocketServer {
         // 异步发送
         log.info("{} personal send: ==> tocid = {}, message = {}",getTimeString(), tocid, message);
         // toSession.getAsyncRemote().sendText(message);
-        sendWithform(toSession,this.cid,"",fromname,message,1);
+        sendWithform(toSession,this.cid,"",fromname,message,4);
         /*
         // 同步发送
         try {
