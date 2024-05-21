@@ -14,6 +14,13 @@ public class Group {
    
     }
 
+    public Group(String ccid,String groupname,String gid, String number){
+        this.cid = ccid;
+        this.groupname = groupname;
+        this.gid = gid;
+        this.number = number;
+    }
+
     public String getcid(){
         return this.cid;
     }
@@ -22,6 +29,9 @@ public class Group {
     }
     public String getnumber(){
         return this.number;
+    }
+    public String getgid(){
+        return this.gid;
     }
     public void setgroupname(String groupname){
         this.groupname = groupname;

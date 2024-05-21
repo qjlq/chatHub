@@ -16,7 +16,7 @@ public interface DatabaseService {
     public List<String> getGidByCid(String gid);
     public String getGnamebyGid(String gid);
     public Group getGroupGid(String gid);
-
-
+    public int AddtoGroupInfo(Group group);
+    public int AddtoGroupMember(String gid,String cid);
     
 }

@@ -1,5 +1,6 @@
 package com.example.hello_world_with_mvc.service;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
@@ -130,11 +131,11 @@ public class WebSocketServer {
         this.cid = cid;
         this.session = session;
         this.fromname = serverHandler.database.getNameByCid(cid);
-        sendWithform(session, cid, "",fromname, "你上线了", 0);
-        sendWithform(session, 3);
+        sendWithform(session, cid, "",fromname, "你上线了", 0); //发用户名字
+        sendWithform(session, 3);                                      //发totallist 和 gidinfo
         String message = fromname+ " 上线了";
-        sendToAll(message,0);
-        sendOnlineList(session);
+        sendToAll(message,0);                                          //告诉其他用户你上线了
+        sendOnlineList(session);                                            //告诉用户已上线的用户
         log.info("{} 在线数：{} ==> listening：session_id = {}， cid = {}",getTimeString(), onlineSessionClientCount, session.getId(), cid);
     }
 
@@ -293,13 +294,19 @@ public class WebSocketServer {
         //message.addProperty("totallist","");
         message.addProperty("code",code);
         synchronized(session){ //防止冲突
-            session.getAsyncRemote().sendText(message.toString());
+            try {
+                session.getBasicRemote().sendText(message.toString());
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                log.info(e.toString());
+                e.printStackTrace();
+            }
         }
     }
 
     //发送的数据格式
     //{"totallist":"totallist","gidinfo":"info","code":"code"}
-    private void sendWithform(Session session,int code) { //发送用户的群主信息
+    private void sendWithform(Session session,int code) { //发送用户的群组信息
         JsonObject message = new JsonObject();
         JsonObject totallist = new JsonObject();
         // message.addProperty("cid","");
@@ -317,9 +324,45 @@ public class WebSocketServer {
         message.addProperty("gidinfo",gson.toJson(gidName));
         message.addProperty("code",code);
         synchronized(session){ //防止冲突
-            session.getAsyncRemote().sendText(message.toString());
+            try {
+                session.getBasicRemote().sendText(message.toString());
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                log.info(e.toString());
+                e.printStackTrace();
+            } //getAsyncRemote是异步发送是错误的使用，该用getBasicRemote()
         }
         
+    }
+    
+    public void addGroup(String gid){  //把新创建的群组信息发给群组成员
+        JsonObject message = new JsonObject();
+        JsonObject totallist = new JsonObject();
+        Map<String, Group> TMPgidName = new ConcurrentHashMap<>();;
+        List<String> cidList = serverHandler.database.getCidByGid(gid);
+        Group gidinfo = serverHandler.database.getGroupGid(gid);
+        TMPgidName.put(gid, gidinfo);
+        totallist.addProperty(gid, cidList.toString());
+        message.add("totallist",totallist);
+        message.addProperty("gidinfo",gson.toJson(TMPgidName));
+        message.addProperty("code","3");
+        //cidList.add(gidinfo.getcid());    //发送者加上群主自己
+        onlineSessionClientMap.forEach((onlinecid, toSession) -> {  //只发给在线的群成员
+            for (String string : cidList) {
+                if (string.equals(onlinecid)) {
+                    synchronized(toSession){ //防止冲突
+                        try {
+                            toSession.getBasicRemote().sendText(message.toString());
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            log.info(e.toString());
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
+
     }
 
     private String getTimeString(){

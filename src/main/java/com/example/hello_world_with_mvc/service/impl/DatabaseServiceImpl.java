@@ -60,7 +60,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Override
     public List<String> getCidByGid(String gid){
         try {
-            String sql = "select cid from chat.chat_group where gid = ?";
+            String sql = "select cid from chat.groupMember where gid = ?";
             List<String> result = jdbcTemplate.query(sql,(resultset,i)->{
                 return resultset.getString("cid");
             },gid);
@@ -73,7 +73,7 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Override
     public List<String> getGidByCid(String cid){
         try {
-            String sql = "select gid from chat.chat_group where cid = ?";
+            String sql = "select gid from chat.groupMember where cid = ?";
             List<String> result = jdbcTemplate.query(sql,(resultset,i)->{
                 return resultset.getString("gid");
             },cid);
@@ -120,5 +120,13 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
     }
 
-    
+    @Override
+    public int AddtoGroupInfo(Group group){
+        return jdbcTemplate.update("insert into chat.groupinfo(gid, ccid, groupname, number) values(?,?,?,?)",group.getgid(), group.getcid(), group.getgroupname(),group.getnumber());
+    }
+
+    @Override
+    public int AddtoGroupMember(String gid,String cid){
+        return jdbcTemplate.update("insert into chat.groupMember(gid, cid ) values(?, ?)",gid,cid);
+    }
 }

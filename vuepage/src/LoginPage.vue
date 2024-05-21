@@ -17,7 +17,7 @@
                         <button @click="logins"   class="commit-button">
                             Sign in
                         </button>
-                        <a class="link" id="sign-up" href="/signup">sign-up</a>
+                        <a class="link" id="sign-up" href="#/signup">sign-up</a>
                     <!-- </form> -->
                 </div>
             </div>
@@ -77,10 +77,15 @@ export default {
                 }
             })
         },
-        login(){
+        // login(){
+        //     router.push({
+        //                 path:'/signup',
+        //                 //query:{cid:this.cid}
+        //     })
+        // },
+        signUp(){
             router.push({
                         path:'/signup',
-                        //query:{cid:this.cid}
             })
         }
     },

@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.hello_world_with_mvc.entity.User;
 import com.example.hello_world_with_mvc.service.UserService;
 
+import lombok.extern.slf4j.Slf4j;
+
 //@Controller ：表示是控制器对象
+
 @RestController  //是@Controller和@ResponseBody的组合注解
 @RequestMapping("/user")  //@RequestMapping：标记该类/方法对应接口的配置信息
 public class UserController {

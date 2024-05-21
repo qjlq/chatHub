@@ -75,7 +75,7 @@ export default {
     // },
 
     props:{
-        cid:String,
+        cid : String,
         // name:String,
         // gid:String,
         // socket:socket
@@ -87,8 +87,7 @@ export default {
             test: [[{cid: this.cid,name: 'name',msg: 'test message',left:true}]],
             socket:null,
             name:null,
-            idMapArray:new Map(),
-            cidMapArray:new Map()
+            idMapArray:new Map(), //绑定gid/cid 和 对象数组的数组的下标
 
 
         }
@@ -169,7 +168,7 @@ export default {
                             id = message.gid
                         }
                         console.log("re: " + id)
-                    }else if(message.code == 2){
+                    }else if(code == 2){
                         message.name = "系统信息"
                         
                     }else if(code == 0){
