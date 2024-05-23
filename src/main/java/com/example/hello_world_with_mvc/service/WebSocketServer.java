@@ -45,6 +45,7 @@ import com.google.gson.JsonParser;
  * 2：用户下线
  * 3：群组列表
  * 4：个人消息
+ * 5：群组被删除
  */
 
 @Component
@@ -346,7 +347,6 @@ public class WebSocketServer {
         message.add("totallist",totallist);
         message.addProperty("gidinfo",gson.toJson(TMPgidName));
         message.addProperty("code","3");
-        //cidList.add(gidinfo.getcid());    //发送者加上群主自己
         onlineSessionClientMap.forEach((onlinecid, toSession) -> {  //只发给在线的群成员
             for (String string : cidList) {
                 if (string.equals(onlinecid)) {
@@ -363,6 +363,27 @@ public class WebSocketServer {
             }
         });
 
+    }
+
+    public void deleteGroupMsg(String gid,String ccid){
+        JsonObject message = new JsonObject();
+        message.addProperty("gid",gid);
+        message.addProperty("code","5");
+        onlineSessionClientMap.forEach((onlinecid, toSession) -> {
+            // 排除掉删除群的cid
+            if (!ccid.equalsIgnoreCase(onlinecid)) {
+                log.info("delete group send: gid = {} ==> tocid = {}, message = {}", gid, onlinecid,);
+                synchronized(toSession){ //防止冲突
+                    try {
+                        toSession.getBasicRemote().sendText(message.toString());
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        log.info(e.toString());
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 
     private String getTimeString(){
@@ -394,4 +415,5 @@ public class WebSocketServer {
         });
     }
     
+
 }

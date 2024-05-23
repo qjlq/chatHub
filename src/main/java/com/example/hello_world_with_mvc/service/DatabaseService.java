@@ -18,5 +18,6 @@ public interface DatabaseService {
     public Group getGroupGid(String gid);
     public int AddtoGroupInfo(Group group);
     public int AddtoGroupMember(String gid,String cid);
-    
+    public int DeleteCidViaGroupMember(String gid, String cid);
+    public int UpdateGroupNumber(String gid, String number);
 }

@@ -54,4 +54,21 @@ public class UserServicelmpl implements UserService {
         }
  //tmp
     }
+
+    @Override
+    public String leaveGroup(String cid,String gid){
+        try {
+            int state = database.DeleteCidViaGroupMember(gid, cid);
+            if (state == 201){
+                return "201";
+            }else if (state == 200) {
+                return "200";
+            }
+            return "200";
+        } catch (Exception e) {
+            // TODO: handle exception
+            log.info(e.toString());
+            return "500";
+        }
+    }
 }

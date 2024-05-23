@@ -2,13 +2,13 @@ const ModuleUser = {
     state: {
         cid: "",
         username: "",
-        cidMapTotallist: new Map(),
+        cidMapTotallist: new Map(),  
         cidMapGidinfo: new Map(),
         // GidinfoState: false,
         // test: "active",
         tabs:[
           {id:'',groupname:'',type:''}
-        ],
+        ],    //存群组名/人名 type = cid/gid 
         chatRoom: new Map(),
         currentRoom: 'ALL',
         // array : [{cid: "test",name: 'name',msg: 'test message',left:true}],

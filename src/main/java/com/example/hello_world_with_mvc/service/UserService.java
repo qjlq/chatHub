@@ -10,4 +10,5 @@ public interface UserService {
     public List<User> list();
     // public void addUser(User user);
     public String addGroup(Group group,List<String> memList);
+    public String leaveGroup(String cid,String gid);
 }

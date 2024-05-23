@@ -68,7 +68,6 @@
       currentTab(gid,type){
         this.$store.commit('changeCurrentRoom',gid)
         this.$store.commit('changeType',type)
-
       },
     },
   //   methods: {

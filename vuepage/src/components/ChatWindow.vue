@@ -84,7 +84,7 @@ export default {
     data() {
         return {
             newMsg:'',
-            test: [[{cid: this.cid,name: 'name',msg: 'test message',left:true}]],
+            test: [[{cid: this.cid,name: 'name',msg: 'test message',left:true}]],  //对像数组的数组，存对话记录
             socket:null,
             name:null,
             idMapArray:new Map(), //绑定gid/cid 和 对象数组的数组的下标

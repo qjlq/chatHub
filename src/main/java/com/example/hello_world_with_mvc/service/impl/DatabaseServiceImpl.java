@@ -129,4 +129,32 @@ public class DatabaseServiceImpl implements DatabaseService {
     public int AddtoGroupMember(String gid,String cid){
         return jdbcTemplate.update("insert into chat.groupMember(gid, cid ) values(?, ?)",gid,cid);
     }
+
+    @Override
+    public int UpdateGroupNumber(String gid, String number){
+        return jdbcTemplate.update("update chat.groupinfo set number = ? where gid = ?",number,gid);
+    }
+
+    @Override
+    public int DeleteCidViaGroupMember(String gid, String cid){
+        jdbcTemplate.update("delete from chat.groupMember where gid = ? and cid = ?",gid,cid);
+        String sql = "select number from chat.groupinfo where gid = ?";
+        //修改群人数
+        List<Group> result = jdbcTemplate.query(sql,(resultset,i)->{
+            Group group = new Group();
+            group.setnumber(resultset.getString("number"));
+            return group;
+        },gid);
+        int number = Integer.parseInt(result.get(0).getnumber());
+        number --;
+        UpdateGroupNumber(gid,String.valueOf(number));
+        if (number <= 1){ 
+            jdbcTemplate.update("delete from chat.groupMember where gid = ?",gid); //删除剩下的一人
+            jdbcTemplate.update("delete from chat.groupinfo where gid = ? ",gid); //删除群信息
+            return 201; //群人数为1 时 删除群
+        }
+        return 200;
+    }
+
+
 }

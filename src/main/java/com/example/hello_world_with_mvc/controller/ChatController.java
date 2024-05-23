@@ -91,6 +91,16 @@ public class ChatController {
 
         return Uservice.addGroup(new Group(cid,groupname,gid,number), memberList);
     }
+
+    @RequestMapping("/leaveGroup")
+    public String LeaveGroup(@RequestParam String json) {
+        JsonObject jsonObject = new JsonParser().parse(json).getAsJsonObject();
+        String cid = jsonObject.get("ccid").getAsString();
+        String gid = jsonObject.get("gid").getAsString();
+        log.info("Leave Group: " + cid + " leave group: " + gid );
+        return Uservice.leaveGroup(cid,gid);
+    }
+    
     
     
 }
