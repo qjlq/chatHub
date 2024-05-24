@@ -7,11 +7,14 @@ const ModuleUser = {
         // GidinfoState: false,
         // test: "active",
         tabs:[
-          {id:'',groupname:'',type:''}
+          {gid:'',groupname:'',type:'',msg:0,umsg:0}
         ],    //存群组名/人名 type = cid/gid 
         chatRoom: new Map(),
         currentRoom: 'ALL',
+        IDtype:'ALL', 
         // array : [{cid: "test",name: 'name',msg: 'test message',left:true}],
+        groupname:'ALL',
+        currentRoomMsg:0,
     },
    
     getters: {
@@ -38,25 +41,56 @@ const ModuleUser = {
       // test(state,value){
       //   state.test = value
       // },
-      addTabs(state,[gid,groupname,type,color]){
-        state.tabs.push({gid : gid, groupname : groupname,type : type,color : color})
+      addTabs(state,[gid,groupname,type,msg,umsg]){
+        state.tabs.push({gid : gid, groupname : groupname,type : type,msg : msg, umsg : umsg})
       },
-      changeTabColor(state,[gid,color]){
-        state.tabs.forEach(element => {
-          if(element.gid == gid){
-            element.color = color
+      deleteTabs(state,gid){ 
+        var index = 0;
+        for(var i in state.tabs){
+          if(state.tabs[i].gid == gid){
+            index = i;
+            state.tabs.splice(index,1);
+            break;
           }
-        });
+        }
       },
-      minusTabs(state){
-        state
+      resetTabs(state){
+        state.tabs = []
       },
-      changeCurrentRoom(state,id){
+      // changeTabColor(state,[gid,color]){
+      //   state.tabs.forEach(element => {
+      //     if(element.gid == gid){
+      //       element.color = color
+      //     }
+      //   });
+      // },
+      changeCurrentRoom(state,[id,name,type,msg]){
         state.currentRoom = id
+        state.groupname = name
+        state.currentRoomMsg = msg
+        state.IDtype = type
+        for(var i = 0; i < state.tabs.length; i++){
+          if(state.tabs[i].gid == id){
+            state.tabs[i].umsg = 0
+          }
+        }
       },
-      changeType(state,type){
-        state.type = type
-      }
+      changeMsg(state,id){
+        for(var i = 0; i < state.tabs.length; i++){
+          if(state.tabs[i].gid == id){
+            console.log(state.tabs[i].msg)
+            state.tabs[i].msg += 1;
+            console.log(state.tabs[i].msg)
+              if(state.tabs[i].gid != state.currentRoom){
+                state.tabs[i].umsg += 1
+              }else{
+                state.currentRoomMsg = state.tabs[i].msg
+              }
+          }
+        }
+      },
+
+
       // updateChatRoom(state,[key,value]){
       //   state.Array.push(value)
       //   state.chatRoom.set(key,state.Array)

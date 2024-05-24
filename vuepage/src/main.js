@@ -7,8 +7,11 @@ import App from './App.vue'
 import { createApp } from 'vue'
 // import { createStore } from 'vuex'
 // 引入路由
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
 import router from './router.config.js'
 import store from './store'
+
 
 // const store = createStore({
 //   modules: {
@@ -19,6 +22,7 @@ import store from './store'
 // });
 const app = createApp(App)
 // app.use(router).mount("#app")
+app.use(ElementPlus)
 app.use(router).use(store)
 router.isReady().then(() => {
     app.mount("#app");

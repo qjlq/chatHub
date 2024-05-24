@@ -2,7 +2,15 @@ const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
   transpileDependencies: true
 })
-
+// module.exports = {  //unplugin-element-plus
+//     configureWebpack: {
+//       plugins: [
+//         require('unplugin-element-plus/webpack')({
+//           // options
+//         }),
+//       ],
+//     },
+// };
 // const proxy = require('http-proxy-middleware');
 
 //跨域部分代码 使以api开头的为代理请求

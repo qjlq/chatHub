@@ -2,15 +2,15 @@
     <div>
         <div class = "chatRoomName" data-tauri-drag-region="true">
             <div class = "RoomName-header">
-                <div class = "header-text">{{mainHead}}</div>
-                <div class = "sub-header-text">{{Number}} {{subHead}}</div>
+                <div class = "header-text">{{this.$store.state.user.groupname}}</div>
+                <div class = "sub-header-text">{{this.$store.state.user.currentRoomMsg}} {{subHead}}</div>
             </div>
             <div class = "window-action"> 
                 <button v-on:click="test1" class="button"> <div class="button-image">
-                    test
+                    add Group
                 </div> </button>
                 <button v-on:click="test2" class="button"> <div class="button-image">
-                    test
+                    delete Group
                 </div></button>
             </div>
         </div>

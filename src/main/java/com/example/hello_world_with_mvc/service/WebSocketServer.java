@@ -372,7 +372,7 @@ public class WebSocketServer {
         onlineSessionClientMap.forEach((onlinecid, toSession) -> {
             // 排除掉删除群的cid
             if (!ccid.equalsIgnoreCase(onlinecid)) {
-                log.info("delete group send: gid = {} ==> tocid = {}, message = {}", gid, onlinecid,);
+                log.info("delete group send: gid = {} ==> tocid = {}", gid, onlinecid);
                 synchronized(toSession){ //防止冲突
                     try {
                         toSession.getBasicRemote().sendText(message.toString());

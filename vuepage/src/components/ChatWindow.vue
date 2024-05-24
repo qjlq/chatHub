@@ -2,8 +2,9 @@
     <div class="window-show" id = "window-show">
         <div v-for="tester in test[this.idMapArray.get(this.$store.state.user.currentRoom)]"
             :key = "tester.cid"    
-        class="message-body">   
-            <div v-if="tester.left" class="message-container">
+        class="message-body"> 
+          <!--message-body 弃用  -->
+            <div v-if="tester.left && tester.msg != ''" class="message-container">
                 <div class="message-container">
                     <div class="message-head">
                         <div class="message-image">
@@ -16,7 +17,7 @@
                 </div>
             </div>
 
-            <div v-else class="message-user">
+            <div v-if = "!tester.left" class="message-user">
                 <div class="message-container">
                     <div class="message-head">
                         <div class="message-image">
@@ -84,10 +85,10 @@ export default {
     data() {
         return {
             newMsg:'',
-            test: [[{cid: this.cid,name: 'name',msg: 'test message',left:true}]],  //对像数组的数组，存对话记录
+            test: [[{cid: this.cid,name: 'name',msg: '',left:true}]],  //对像数组的数组，存对话记录
             socket:null,
             name:null,
-            idMapArray:new Map(), //绑定gid/cid 和 对象数组的数组的下标
+            idMapArray:new Map(), //绑定gid/cid 和 对象数组的数组（stats.tabs）的下标
 
 
         }
@@ -111,7 +112,7 @@ export default {
             this.socket.onmessage = this.receiveMsg;
             this.socket.onclose = this.Onclose;
             //this.$store.commit('updateChatRoom',[this.cid,test.push({cid: this.cid ,name: 'name',msg: 'test message',left:true})])
-            this.$store.commit('addTabs',["ALL","ALL",'ALL',true])
+            this.$store.commit('addTabs',["ALL","ALL",'ALL',0,0])
             //console.log("room: " + this.$store.state.user.chatRoom[this.cid])
             this.idMapArray.set("ALL",0)
 
@@ -137,16 +138,20 @@ export default {
                 this.scollToButtom()
                 var tocid = '';
                 var togid = '';
-                if(this.$store.state.user.type == 'gid'){
+                if(this.$store.state.user.IDtype == 'gid'){
                     togid = this.$store.state.user.currentRoom
-                }else if(this.$store.state.user.type == 'cid'){
+                }else if(this.$store.state.user.IDtype == 'cid'){
                     tocid = this.$store.state.user.currentRoom
                 }
                 var msg = '{"cid":"' + tocid + '","gid":"' + togid + '","message":"' + this.newMsg + '"}'
                 this.socket.send(msg)
                 this.newMsg = ''
+                this.changeTabsNumber(this.$store.state.user.currentRoom)  //增加消息数及未读消息
             
             }
+        },
+        changeTabsNumber(id){
+            this.$store.commit('changeMsg', id)
         },
         receiveMsg(msg){
             // this.test.push({cid : cid++,msg: 'receive',left:true})
@@ -160,37 +165,46 @@ export default {
             if(code != 3){
                 console.log("code0: " + message.code)
                 console.log("store cid = " + this.$store.state.user.cid)
-                if(message.msg != null && message.msg != undefined && message.msg != ''){
-                    if(code == 1){
+                
+                    if(code == 1){    //普通消息
                         console.log("get a message")
                         id = "ALL"
                         if(message.gid != null && message.gid != undefined && message.gid != ''){
                             id = message.gid
                         }
                         console.log("re: " + id)
-                    }else if(code == 2){
+                    }else if(code == 2){  //下线消息
                         message.name = "系统信息"
+                        this.$store.commit('deleteTabs',message.cid)
                         
-                    }else if(code == 0){
+                    }else if(code == 0){ //上线消息（在你登录后上线的）
                         console.log(message.code)
                         if(message.cid == this.cid.toString()){
                             this.name = message.name;
                         }else if(!this.idMapArray.has(message.cid)){
-                            this.test.push([{cid: message.cid,name: message.name, msg: 'hi',left:true}])
+                            this.test.push([{cid: message.cid,name: message.name, msg: '',left:true}])
                             this.idMapArray.set(message.cid,this.idMapArray.size)
-                            this.$store.commit('addTabs',[message.cid,message.name,'cid',true])
+                        }
+                        if(message.cid != this.cid.toString()){
+                            this.$store.commit('addTabs',[message.cid,message.name,'cid',0,0])
                         }
                         message.name = "系统信息"
-                    }else if (code == 4 && message.cid != null && message.cid != undefined && message.cid != ''){
-                            id = message.cid
+                    }else if (code == 4 && message.cid != null && message.cid != undefined && message.cid != ''){ //1 对 1聊天
+                        id = message.cid 
+                    }else if (code == 5){  // 群解散消息，删除群按钮
+                        this.$store.commit('deleteTabs',message.gid)
                     }
-                    this.test[this.idMapArray.get(id)].push({cid : message.cid,name : message.name, msg: message.msg,left:true});
-                } else if(code == 0){
-                        this.test.push([{cid: message.cid,name: message.name, msg: 'hi',left:true}])
-                        this.idMapArray.set(message.cid,this.idMapArray.size)
-                        this.$store.commit('addTabs',[message.cid,message.name,'cid',true])
+                    if(message.msg != null && message.msg != undefined && message.msg != ''){ //msg不为空时才存入对象数组的数组
+                        this.test[this.idMapArray.get(id)].push({cid : message.cid,name : message.name, msg: message.msg,left:true});
+                        this.changeTabsNumber(id)  //增加消息数及未读消息
+                    }
+                
+                // else if(code == 0){  //在你登录前在线的
+                //         this.test.push([{cid: message.cid,name: message.name, msg: 'hi',left:true}])
+                //         this.idMapArray.set(message.cid,this.idMapArray.size)
+                //         this.$store.commit('addTabs',[message.cid,message.name,'cid',true])
 
-                }
+                // }
                 //this.test.push({cid : message.cid,name : message.name, msg: message.msg,left:true});
                 //this.idMapArray[this.$store.state.user.currentRoom] = this.idMapArray.get(this.$store.state.user.currentRoom).push({cid : message.cid,name : message.name, msg: message.msg,left:true})
                 
@@ -200,7 +214,7 @@ export default {
             }else {
                 //console.log("totallist: " + message.totallist)
                 console.log("code3: " + code)
-                for(var val in message.totallist){
+                for(var val in message.totallist){ //val = gid
                     // console.log(val + " "+message.totallist[val])
                      
                     //console.log("index: "+message.totallist[val][2])
@@ -232,10 +246,11 @@ export default {
                     // console.log("size: " + this.idMapArray.size )
                     // var index = this.idMapArray.size
                     // console.log("index: " + index )
-                    this.test.push([{cid: this.cid,name: 'name',msg: 'test message',left:true}])
+
+                    this.test.push([{cid: this.cid,name: 'name',msg: '',left:true}]) //重要，第一条插入对象数组的数组中的对象的元素，必须含数组格式
                     this.idMapArray.set(val2,this.idMapArray.size)
                     this.$store.commit('updatecidMapGidinfo',[val2,info])
-                    this.$store.commit('addTabs',[val2,info.groupname,'gid'])
+                    this.$store.commit('addTabs',[val2,info.groupname,'gid',0,0])
                     
                 }
 
@@ -272,6 +287,7 @@ export default {
         },
         Onclose(){
             this.test.push({cid : "系统信息",msg: "你已下线",left:false})
+            this.$store.commit('resetTabs')
 
         },
         reconnect(){
@@ -286,6 +302,7 @@ export default {
             chatform.scrollTop = chatform.scrollHeight // 滚动高度
             })
         },
+
     }
 }
   
