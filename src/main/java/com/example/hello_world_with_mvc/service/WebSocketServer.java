@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.websocket.OnClose;
@@ -20,10 +21,12 @@ import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.SendHandler;
 import jakarta.websocket.Session;
+import jakarta.websocket.server.HandshakeRequest;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
 import lombok.extern.slf4j.Slf4j;
 
+import com.example.hello_world_with_mvc.config.WebSocketConfig;
 import com.example.hello_world_with_mvc.entity.Group;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -49,8 +52,12 @@ import com.google.gson.JsonParser;
  */
 
 @Component
+// @EnableWebSocket
 @Slf4j
+//@ServerEndpoint(value = "/websocket/{cid}",configurator = WebSocketConfig.class)
+
 @ServerEndpoint("/websocket/{cid}")
+
 public class WebSocketServer {
 
     @Autowired //连接databaseservice

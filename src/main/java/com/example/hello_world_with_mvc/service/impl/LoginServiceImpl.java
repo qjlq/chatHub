@@ -9,6 +9,8 @@ import com.example.hello_world_with_mvc.entity.User;
 import com.example.hello_world_with_mvc.service.DatabaseService;
 import com.example.hello_world_with_mvc.service.LoginService;
 import com.example.hello_world_with_mvc.service.UserService;
+import com.example.hello_world_with_mvc.utils.JWTUtil;
+import com.example.hello_world_with_mvc.utils.TokenUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,9 +30,12 @@ public class LoginServiceImpl implements LoginService {
         user = database.getVaiUserID(uid);
         // System.err.println(user.getUserId() + " "+user.getPassword());
         if (password.equals(user.getPassword()) || user.getUserId() != null){
-            token = "y";
+            // token = JWTUtil.createJwtToken(uid);
+            token = TokenUtil.signToken(uid);
+            log.info("cid:{},token:{}",uid,token);
+
         }else{
-            token = "n";
+            token = "400";
             log.info("error password: cid:{}",uid);
         }
         return token;

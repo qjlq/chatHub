@@ -106,6 +106,8 @@ export default {
             console.log("调用了链接websock  ，用户id为   ："+this.cid)
             var reqUrl = "http://localhost:2234/websocket/" + this.cid;
             this.socket = new WebSocket(reqUrl.replace("http", "ws"));
+            // this.socket = new WebSocket(reqUrl.replace("http", "ws"),[localStorage.getItem("token")]);
+
             console.log(reqUrl.replace("http", "ws"));
             this.socket.onopen = this.Onopen;
             this.socket.onerror = this.Onerror;

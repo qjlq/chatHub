@@ -65,12 +65,13 @@ export default {
                 },
 
             }).then((res)=>{
-                if (res.data == "y"){
+                if (res.data != "400"){
                     router.push({
                         path:'/chatroom',
                         query:{cid:this.cid}
                     });
-                    console.log("test")
+                    //console.log("test")
+                    localStorage.setItem("token",res.data)
                     this.$store.commit('updateCid',this.cid)
                 }else {
                     router.push('login');
