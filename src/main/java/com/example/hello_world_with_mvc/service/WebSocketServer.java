@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.websocket.Endpoint;
+import jakarta.websocket.EndpointConfig;
 import jakarta.websocket.OnClose;
 import jakarta.websocket.OnError;
 import jakarta.websocket.OnMessage;
@@ -54,9 +56,9 @@ import com.google.gson.JsonParser;
 @Component
 // @EnableWebSocket
 @Slf4j
-//@ServerEndpoint(value = "/websocket/{cid}",configurator = WebSocketConfig.class)
+@ServerEndpoint(value = "/websocket/",configurator = WebSocketConfig.class)
 
-@ServerEndpoint("/websocket/{cid}")
+//@ServerEndpoint("/websocket/{cid}")
 
 public class WebSocketServer {
 
@@ -102,10 +104,12 @@ public class WebSocketServer {
     @OnOpen
     //public void onOpen(@PathParam("cid") String cid, Session session) {
 
-    public void onOpen(@PathParam("cid") String cid, Session session) {
+    public void onOpen(Session session,EndpointConfig config) {
         /**
          * session.getId()：当前session会话会自动生成一个id，从0开始累加的。
          */
+        this.cid = config.getUserProperties().get("cid").toString();
+        log.info("cid f: " + cid);
         log.info("{} connecting: ==> session_id = {}， cid = {}",getTimeString(), session.getId(), cid);
         //加入 Map中。将页面的cid和session绑定或者session.getId()与session
         //onlineSessionIdClientMap.put(session.getId(), session);

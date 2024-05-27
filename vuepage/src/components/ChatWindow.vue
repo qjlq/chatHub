@@ -104,9 +104,11 @@ export default {
         initWebSocket() {
         // WebSocket与普通的请求所用协议有所不同，ws等同于http，wss等同于https
             console.log("调用了链接websock  ，用户id为   ："+this.cid)
-            var reqUrl = "http://localhost:2234/websocket/" + this.cid;
-            this.socket = new WebSocket(reqUrl.replace("http", "ws"));
-            // this.socket = new WebSocket(reqUrl.replace("http", "ws"),[localStorage.getItem("token")]);
+            //var reqUrl = "http://localhost:2234/websocket/" + this.cid;
+            var reqUrl = "http://localhost:2234/websocket/";
+
+            this.socket = new WebSocket(reqUrl.replace("http", "ws"),localStorage.getItem("token"));
+            //this.socket = new WebSocket(reqUrl.replace("http", "ws"),localStorage.getItem("token"));
 
             console.log(reqUrl.replace("http", "ws"));
             this.socket.onopen = this.Onopen;

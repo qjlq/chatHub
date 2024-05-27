@@ -27,6 +27,7 @@ import com.example.hello_world_with_mvc.utils.TokenUtil;
 
 import jakarta.servlet.annotation.WebListener;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.websocket.HandshakeResponse;
 import jakarta.websocket.server.HandshakeRequest;
 import jakarta.websocket.server.ServerEndpointConfig;
@@ -61,16 +62,17 @@ public class WebSocketConfig extends ServerEndpointConfig.Configurator{
         // log.info("c:"+request.toString());
         // log.info("c:"+request.getHeaders().toString());
         // log.info("c:"+request.getRequestURI().toString());
+        String token = request.getHeaders().get("sec-websocket-protocol").get(0);
+        //log.info(token.toString());
 
-
-        // String token = request.getHeaders().get("Protocol").toString();
-        // log.info("t"+token);
-
-        // if(null != user && user.getPassword().equals(password)){
-        // config.getUserProperties().put("cid", cid);
-        // }else{
-        //     return;
-        // }
+        //log.info("tcid:" + cid2);
+        if (TokenUtil.verify(token) != null){  //如歌不在response 加入protocol 就会自动断开连接
+            response.getHeaders().put("sec-websocket-protocol",request.getHeaders().get("sec-websocket-protocol"));
+            String cid = TokenUtil.verify(token).getClaim("cid").asString();
+            config.getUserProperties().put("cid", cid);
+        }else{
+            config.getUserProperties().put("cid", null);
+        }
     }
 
 //     @Override
