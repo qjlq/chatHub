@@ -29,15 +29,17 @@
 import axios from 'axios';
 // import { useRouter } from 'vue-router'
 // const router = useRouter();
-import router from './router.config.js'
+// import router from './router.config.js'
 // import store from './store/'
 // import { useStore } from 'vuex'
 // const store = useStore();
 export default {
+    
     // setup() {
     //     //const router = useRouter();
 
-    //     const store = useStore();
+    //     //const store = useStore();
+
     // },
     data() {
         return {
@@ -55,8 +57,8 @@ export default {
             this.password = e.target.value
         },
         logins(){
+            // console.log("bf: " +  localStorage.getItem("token"))
             var json = '{"cid":"' + this.cid + '","password":"' + this.password + '"}'
-
             axios({
                 method:"post",
                 url:"/api/login/logins",
@@ -65,16 +67,25 @@ export default {
                 },
 
             }).then((res)=>{
+                // console.log(res.data);
                 if (res.data != "400"){
-                    router.push({
-                        path:'/chatroom',
-                        query:{cid:this.cid}
-                    });
-                    //console.log("test")
+                    // console.log("AAAAAAAA");
+
                     localStorage.setItem("token",res.data)
+                    localStorage.setItem("cid",this.cid)
+                    this.$router.push({
+                        name:'chatroom',
+                        // path:'/chatroom',
+                        params: { cid: this.cid } 
+                    });
+                    console.log("test")
                     this.$store.commit('updateCid',this.cid)
                 }else {
-                    router.push('login');
+                    this.$router.push({
+                        //name:'login'
+                        path:'login'
+
+                    });
                 }
             })
         },
@@ -85,7 +96,8 @@ export default {
         //     })
         // },
         signUp(){
-            router.push({
+            this.$router.push({
+                        //name:'signup'
                         path:'/signup',
             })
         }

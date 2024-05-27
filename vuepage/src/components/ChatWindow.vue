@@ -70,13 +70,14 @@
 
 // var totallist = new Map();
 // var gidmapginfo = new Map();
+
 export default {
     // setup() {
     //     var {cidMapName,cidMapNameTrack} = inject("shareDate")
     // },
 
     props:{
-        cid : String,
+        // cid : String,
         // name:String,
         // gid:String,
         // socket:socket
@@ -84,6 +85,7 @@ export default {
 
     data() {
         return {
+            cid: '',
             newMsg:'',
             test: [[{cid: this.cid,name: 'name',msg: '',left:true}]],  //对像数组的数组，存对话记录
             socket:null,
@@ -103,12 +105,24 @@ export default {
     methods: {
         initWebSocket() {
         // WebSocket与普通的请求所用协议有所不同，ws等同于http，wss等同于https
+            this.cid = localStorage.getItem("cid")
             console.log("调用了链接websock  ，用户id为   ："+this.cid)
             //var reqUrl = "http://localhost:2234/websocket/" + this.cid;
             var reqUrl = "http://localhost:2234/websocket/";
+            try {
+                this.socket = new WebSocket(reqUrl.replace("http", "ws"),localStorage.getItem("token"));
+                //this.socket = new WebSocket(reqUrl.replace("http", "ws"),localStorage.getItem("token"));
+                // 要获取连接状态，可以通过带有值的 socket.readyState 属性：
 
-            this.socket = new WebSocket(reqUrl.replace("http", "ws"),localStorage.getItem("token"));
-            //this.socket = new WebSocket(reqUrl.replace("http", "ws"),localStorage.getItem("token"));
+                // 0 —— “CONNECTING”：连接还未建立，
+                // 1 —— “OPEN”：通信中，
+                // 2 —— “CLOSING”：连接关闭中，
+                // 3 —— “CLOSED”：连接已关闭。
+                if (this.socket.readyState == 3) localStorage.removeItem('token')
+            } catch (error) {
+                //localStorage.removeItem('token')
+                console.log(error)
+            }
 
             console.log(reqUrl.replace("http", "ws"));
             this.socket.onopen = this.Onopen;
@@ -122,6 +136,7 @@ export default {
 
         },
         Onopen(){
+
             console.log("Socket 已打开");
             //this.$store.commit('updateChatRoom',[this.cid,test.push({cid: this.cid ,name: 'name',msg: 'test message',left:true})])
             //this.$store.commit('addTabs',[this.cid,"ALL"])
@@ -157,6 +172,7 @@ export default {
         changeTabsNumber(id){
             this.$store.commit('changeMsg', id)
         },
+        
         receiveMsg(msg){
             // this.test.push({cid : cid++,msg: 'receive',left:true})
             var message = JSON.parse(msg.data);
@@ -183,13 +199,13 @@ export default {
                         
                     }else if(code == 0){ //上线消息（在你登录后上线的）
                         console.log(message.code)
-                        if(message.cid == this.cid.toString()){
+                        if(message.cid == this.cid){
                             this.name = message.name;
                         }else if(!this.idMapArray.has(message.cid)){
                             this.test.push([{cid: message.cid,name: message.name, msg: '',left:true}])
                             this.idMapArray.set(message.cid,this.idMapArray.size)
                         }
-                        if(message.cid != this.cid.toString()){
+                        if(message.cid != this.cid){
                             this.$store.commit('addTabs',[message.cid,message.name,'cid',0,0])
                         }
                         message.name = "系统信息"
@@ -290,9 +306,12 @@ export default {
 
         },
         Onclose(){
+            //localStorage.removeItem('token')
+            this.socket.close();
             this.test.push({cid : "系统信息",msg: "你已下线",left:false})
             this.$store.commit('resetTabs')
-
+            localStorage.clear();
+            
         },
         reconnect(){
             this.initWebSocket()
@@ -308,6 +327,7 @@ export default {
         },
 
     }
+    
 }
   
 </script>

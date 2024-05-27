@@ -22,6 +22,7 @@ import store from './store'
 // });
 const app = createApp(App)
 // app.use(router).mount("#app")
+//router.use(ElementPlus)
 app.use(ElementPlus)
 app.use(router).use(store)
 router.isReady().then(() => {

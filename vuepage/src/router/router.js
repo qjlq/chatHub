@@ -1,9 +1,10 @@
 const routes = [
+    // {
+    //   path: '/',
+    //   redirect: '/login',
+    // },
     {
-      path: '/',
-      redirect: '/login',
-    },
-    {
+      // path: '/chatroom/:cid',
       path: '/chatroom',
       name: 'chatroom',
       // 懒加载路由
@@ -26,6 +27,6 @@ const routes = [
     },
 
   ]
-  
-  export default routes
+
+export default routes
  

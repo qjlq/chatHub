@@ -33,11 +33,7 @@ import jakarta.websocket.server.HandshakeRequest;
 import jakarta.websocket.server.ServerEndpointConfig;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * @Author chen bo
- * @Date 2023/10
- * @Des
- */
+
 @Slf4j
 //@WebListener
 @Configuration
@@ -71,7 +67,8 @@ public class WebSocketConfig extends ServerEndpointConfig.Configurator{
             String cid = TokenUtil.verify(token).getClaim("cid").asString();
             config.getUserProperties().put("cid", cid);
         }else{
-            config.getUserProperties().put("cid", null);
+            log.info("token 为空 或无效");
+            // config.getUserProperties().put("cid", null);
         }
     }
 
