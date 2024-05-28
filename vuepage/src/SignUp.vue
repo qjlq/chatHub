@@ -74,7 +74,7 @@ export default {
         },
         onName(e){
             this.username = e.target.value
-            if(this.nameRegex.test(this.username) && this.user.length >= 1 && this.user.length <=24){
+            if(this.nameRegex.test(this.username) && this.username.length >= 1 && this.username.length <=24){
                 this.checkname = true
             }
             else{
@@ -93,10 +93,10 @@ export default {
         onRePwd(e){
             this.repwd = e.target.value
             if(this.repwd == this.password && this.checkpass){
-                this.recheckpass = true
+                this.checkrepass = true
             }
             else{
-                this.recheckpass = false
+                this.checkrepass = false
             }
         },
         sign(){
