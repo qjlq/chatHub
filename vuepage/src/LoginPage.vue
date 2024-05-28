@@ -6,25 +6,35 @@
                     <img src=".\assets\image1.jpg" alt="imgae" width="200" height="200" style="width:100px; height:100px; border-radius:100%;" >
                 </div>
                 <div class="container-header">
-                    tmps
+                    811 chatRoom
                 </div>
-                <div class="container-input">
-                    <!-- <form action="" accept-charset="UTF-8" data-turbo="false" method="post"> -->
-                        <label for="login_field">Username</label>
-                        <input @input="onInputid" type="text" name="login" id="login_field" class="input-box" autocapitalize="off" autocorrect="off" autocomplete="username" autofocus="autofocus" required="required">
-                        <label for="login_field">Password</label>
-                        <input @input="onInputpw" type="password" name="password" id="password" class="input-box" autocapitalize="off" autocorrect="off" autocomplete="username" autofocus="autofocus" required="required">
-                        <button @click="logins"   class="commit-button">
-                            Sign in
-                        </button>
-                        <a class="link" id="sign-up" href="#/signup">sign-up</a>
-                    <!-- </form> -->
-                </div>
+                <!-- <form novalidate> -->
+                    <div class="container-input">
+                        <!-- <form action="" accept-charset="UTF-8" data-turbo="false" method="post"> -->
+                            <label for="login_field">Username</label>
+                            <input @input="onInputid" type="email" name="cid" id="cid" 
+                                    :class="['input-box',{'invalid':!this.checkemail}]" autocapitalize="off" autocorrect="off" 
+                                    autocomplete="username" autofocus="autofocus" required="required">
+                            <p class="reminder" v-if="!this.checkemail">please input an email</p>
+                            <label for="login_field">Password</label>
+                            <input @input="onInputpw" type="password" name="password" id="password" 
+                                    :class="['input-box',{'invalid':!this.checkpass}]" autocapitalize="off" autocorrect="off" 
+                                    autocomplete="password" autofocus="autofocus" required="required">
+                            <p class="reminder" v-if="!this.checkpass">8-18个字符，可包含a-zA-Z0-9_+*-!@</p>
+                            <button @click="logins"   class="commit-button">
+                                Sign in
+                            </button>
+                            <a class="link" id="sign-up" href="/signup">sign-up</a>
+                        <!-- </form> -->
+                    </div>
+                    <div class="failLoginMsg" v-if="failLogin">{{this.incorrectMsg}}</div>
+
+                <!-- </form> -->
             </div>
         </main>
     </body>
 </template>
-<script>
+<script type="text/javascript">
 
 import axios from 'axios';
 // import { useRouter } from 'vue-router'
@@ -33,6 +43,18 @@ import axios from 'axios';
 // import store from './store/'
 // import { useStore } from 'vuex'
 // const store = useStore();
+
+// var email = document.getElementById("email"); 
+// email.addEventListener("input", function (event) {
+//     if (email.validity.typeMismatch) {
+//         email.setCustomValidity("please input an e-mail");
+//         event
+//     } else {
+//         email.setCustomValidity(""); // 清除已设置的自定义错误
+//     }
+// });
+// var email = document.getElementById("cid");
+// var error = document.querySelector(".error");
 export default {
     
     // setup() {
@@ -41,53 +63,96 @@ export default {
     //     //const store = useStore();
 
     // },
+    
     data() {
         return {
             token:'',
             cid:'',
             password:'',
-            message:''
+            message:'',
+            checkemail:false,
+            checkpass:false,
+            emailRegex: /^[a-zA-Z0-9+&*-]+(?:\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,7}$/,
+            passRegex:/^[a-zA-Z0-9_+*!@]{8,18}$/,
+            failLogin:false,
+            incorrectMsg:''
         }
     },methods: {
         onInputid(e){
             this.cid = e.target.value
-            
+            if(this.emailRegex.test(this.cid)){
+                this.checkemail = true
+            }
+            else{
+                this.checkemail = false
+            }
+            // if(email.validity.valid){
+            //     console.log("y")
+            //     // 如果校验通过，清除已显示的错误消息
+            //     error.innerHTML = ""; // 重置消息的内容
+            //     error.className = "error"; // 重置消息的显示状态
+
+            // }
         },
         onInputpw(e){
             this.password = e.target.value
+            if(this.passRegex.test(this.password) && this.password.length >= 8 && this.password.length <= 18){
+                this.checkpass = true
+            }
+            else{
+                this.checkpass = false
+            }
         },
         logins(){
             // console.log("bf: " +  localStorage.getItem("token"))
-            var json = '{"cid":"' + this.cid + '","password":"' + this.password + '"}'
-            axios({
-                method:"post",
-                url:"/api/login/logins",
-                params:{
-                    json
-                },
+            
 
-            }).then((res)=>{
-                // console.log(res.data);
-                if (res.data != "400"){
-                    // console.log("AAAAAAAA");
+            // if(!email.validity.valid){
+            //     console.log("n")
+            //     error.innerHTML = "please an e-mail";
+            //     error.className = "error active";
 
-                    localStorage.setItem("token",res.data)
-                    localStorage.setItem("cid",this.cid)
-                    this.$router.push({
-                        name:'chatroom',
-                        // path:'/chatroom',
-                        params: { cid: this.cid } 
-                    });
-                    console.log("test")
-                    this.$store.commit('updateCid',this.cid)
-                }else {
-                    this.$router.push({
-                        //name:'login'
-                        path:'login'
+            // }
+            if(this.checkpass && this.checkpass){
+                //console.log("y")
+                var json = '{"cid":"' + this.cid + '","password":"' + this.password + '"}'
+                axios({
+                    method:"post",
+                    url:"/api/login/logins",
+                    params:{
+                        json
+                    },
 
-                    });
-                }
-            })
+                }).then((res)=>{
+                    // console.log(res.data);
+                    if (res.data != "400"){
+                        // console.log("AAAAAAAA");
+
+                        localStorage.setItem("token",res.data)
+                        localStorage.setItem("cid",this.cid)
+                        this.$router.push({
+                            name:'chatroom',
+                            // path:'/chatroom',
+                            //params: { cid: this.cid } 
+                        });
+                        console.log("test")
+                        this.$store.commit('updateCid',this.cid)
+                    }else {
+                        this.incorrectMsg = 'incorret password or username'
+                        this.failLogin = true
+                        // this.$router.push({
+                        //     //name:'login'
+                        //     path:'login'
+
+                        // });
+                    }
+                })
+            }
+            else{
+                this.incorrectMsg = 'invalid input'
+                this.failLogin = true
+            }
+           
         },
         // login(){
         //     router.push({
@@ -97,8 +162,8 @@ export default {
         // },
         signUp(){
             this.$router.push({
-                        //name:'signup'
-                        path:'/signup',
+                name:'signup'
+                // path:'/signup',
             })
         }
     },
@@ -115,6 +180,10 @@ export default {
         line-height: 1.5;
         color: #1f2328;
         background-color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
     }
     div {
         display: block;
@@ -131,6 +200,8 @@ export default {
         margin-left: auto;
         text-align: center;
         width: 100% ;
+        flex-direction: row;
+
     }
     .container-header{
         margin-bottom: 20px;
@@ -139,6 +210,8 @@ export default {
         text-shadow: none;
         background-color: transparent;
         border: 0;
+        flex-direction: row;
+
 
     }
     .container-input{
@@ -148,16 +221,18 @@ export default {
         font-size: 14px;
         background-color: #f6f8fa;
         border: 1px solid #d0d7deb3;
-        border-top: 0;
-        border-radius: 0 0 6px 6px;
+        /* border-top: 0; */
+        border-radius: 20px;
         margin-top: 20px;
         box-sizing: border-box;
+        flex-direction: row;
+
     }
     .input-box{
         box-shadow: inset 0 0 0 32px #ffffff;
-        -webkit-text-fill-color: #1f2328;
+        -webkit-text-fill-color: #032247;
         margin-top: 4px;
-        margin-bottom: 16px;
+        margin-bottom: 1px;
         display: block;
         width: 100%;
         transition: 80ms cubic-bezier(0.33, 1, 0.68, 1);
@@ -168,12 +243,14 @@ export default {
         padding: 5px 12px;
         font-size: 14px;
         line-height: 20px;
+        border-radius: 15px;
     }
     .commit-button{
         padding: 5px 12px;
         margin-top: 4px;
         margin-bottom: 16px;
         border-radius: 10px;
+        border: 1px solid #d0d7de;
         background-color: #238636;
         color: #fff;
         cursor: pointer;
@@ -184,5 +261,30 @@ export default {
         padding: 5px 12px;
         font-size: 15px;
         margin-bottom: 16px;
+    }
+
+    .reminder{
+        font-size: 12px;
+        color: red;
+        /* align-items: center; */
+        margin-top: 1px;
+        margin-bottom: 16px;
+        margin-left: 5px;
+    }
+      /* input:hover, input:focus {
+        background-color: #eee;
+      } */
+
+    .invalid {
+        border: 2px solid red;
+    }
+    .failLoginMsg{
+        padding: 1rem 1rem;
+        text-align: center;
+        background-color: #ffebe9;
+        /* background-image: linear-gradient(var(#ffebe9), var(#ffebe9));s */
+        border-color: var(#ff818266);
+        margin-top: 4px;
+        border-radius: 20px;
     }
 </style>

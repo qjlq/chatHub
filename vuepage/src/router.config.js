@@ -9,7 +9,7 @@ import {ElNotification} from "element-plus"
 const router = createRouter({
 // 这里使用hash模式路由
   // history: createWebHashHistory(), 
-  history: createWebHistory(),  
+  history: createWebHistory('/chat/'),  
   routes,
 })
 

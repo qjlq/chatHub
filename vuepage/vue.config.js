@@ -1,6 +1,7 @@
 const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
-  transpileDependencies: true
+  transpileDependencies: true,
+  base: '/chat/'
 })
 // module.exports = {  //unplugin-element-plus
 //     configureWebpack: {
@@ -20,6 +21,7 @@ module.exports = {
         // open: true, // 自动打开浏览器
         // 代理配置表，在这里可以配置特定的请求代理到对应的API接口
         // 例如将'localhost:8080/api/xxx'代理到'www.example.com/api/xxx'
+        
         proxy: {
             '/api': {
                 target: 'http://localhost:2234', // 指定Spring Boot后端的地址和端口
