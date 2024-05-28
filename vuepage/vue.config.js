@@ -1,7 +1,7 @@
 const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
-  transpileDependencies: true,
-  base: '/chat/'
+  transpileDependencies: true
+//   base: '/chat/'
 })
 // module.exports = {  //unplugin-element-plus
 //     configureWebpack: {

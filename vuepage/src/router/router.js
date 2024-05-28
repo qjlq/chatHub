@@ -8,22 +8,22 @@ const routes = [
       path: '/chatroom',
       name: 'chatroom',
       // 懒加载路由
-      component: () => import('../ChatRoom.vue'), 
+      component: () => import('@/ChatRoom.vue'), 
     },
     {
       path: '/login',
       name: 'login',
-      component: () => import('../LoginPage.vue'),  
+      component: () => import('@/LoginPage.vue'),  
     },
     {
       path:'/signup',
       name:'signup',
-      component: () => import('../SignUp.vue'),
+      component: () => import('@/SignUp.vue'),
     },
     {
       path: '/notFund',
       name: 'notFund',
-      component: () => import('../NotFund.vue'),  
+      component: () => import('@/NotFund.vue'),  
     },
 
   ]
