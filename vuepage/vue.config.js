@@ -25,8 +25,11 @@ module.exports = {
         proxy: {
             '/api': {
                 target: 'http://localhost:2234', // 指定Spring Boot后端的地址和端口
-                // secure: false,  // 如果是https接口，需要配置这个参数
-                //ws: true,    //是否代理 websockets
+                // target: 'http://chat.qjlkalok.xyz:2234', // 指定Spring Boot后端的地址和端口
+                // target: 'http://chatroom.qjlkalok.xyz:2234', // 指定Spring Boot后端的地址和端口
+
+                //secure: false,  // 如果是https接口，需要配置这个参数
+                wss: true,    //是否代理 websockets
                 changeOrigin: true, // 支持跨域
                 pathRewrite: {
                     '^/api': ''

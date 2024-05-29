@@ -36,7 +36,7 @@
     </div>
     <div class = "window-input" >
         <div class = "input-bar">
-            <button @click="disconnect" class="send-button">
+            <!-- <button @click="disconnect" class="send-button">
                 <div class="button-image">
                 </div>
                 <div class="button-text">offLine</div>
@@ -45,12 +45,12 @@
                 <div class="button-image">
                 </div>
                 <div class="button-text">onLine</div>
-            </button>
+            </button> -->
         </div>
         <label for="chat-input" class="input-label">
             <textarea :value='newMsg' @input="onInput" name="input-area" id="chat-input" cols="30" rows="3" style="font-size: 14px;" class="input-text"
-            placeholder="Enter to send, Shift + Enter to wrap, / to search prompts, : to use commands"></textarea>
-            <button class="send-button" @click="sendMsg">
+            placeholder="Enter to send"></textarea>
+            <button class="send-button" @click="sendMsg" @keyup.enter="sendMsg">
                 <div class="button-image">
                 </div>
                 <div class="button-text">send</div>
@@ -106,11 +106,22 @@ export default {
         initWebSocket() {
         // WebSocket与普通的请求所用协议有所不同，ws等同于http，wss等同于https
             this.cid = localStorage.getItem("cid")
-            console.log("调用了链接websock  ，用户id为   ："+this.cid)
+
+            console.log("调用了链接websock  ，用户id为   ："+this.cid + "aaa:" + localStorage.getItem("cid"))
             //var reqUrl = "http://localhost:2234/websocket/" + this.cid;
-            var reqUrl = "http://localhost:2234/websocket/";
+            // var reqUrl = "http://localhost:2234/websocket/" ;  //local
+            //var reqUrl = "http://chat.qjlkalok.xyz:2234/websocket/";
+            // var reqUrl = "http://chatroom.qjlkalok.xyz/websocket/";
+            var reqUrl = "http://chatroom.qjlkalok.xyz/api/websocket/";
+            var protacal = "wss"
+            // var protacal = "ws"
+
+
+
             try {
-                this.socket = new WebSocket(reqUrl.replace("http", "ws"),localStorage.getItem("token"));
+                this.socket = new WebSocket(reqUrl.replace("http", protacal),localStorage.getItem("token"));
+                // this.socket = new WebSocket(reqUrl.replace("http", "wss"),localStorage.getItem("token"));
+
                 //this.socket = new WebSocket(reqUrl.replace("http", "ws"),localStorage.getItem("token"));
                 // 要获取连接状态，可以通过带有值的 socket.readyState 属性：
 
@@ -185,6 +196,8 @@ export default {
             if(code != 3){
                 console.log("code0: " + message.code)
                 console.log("store cid = " + this.$store.state.user.cid)
+                console.log("cid = " + this.cid)
+
                 
                     if(code == 1){    //普通消息
                         console.log("get a message")
@@ -231,7 +244,7 @@ export default {
                 //this.$store.commit("showmessage",[this.$store.state.user.currentRoom,{cid : message.cid,name : message.name, msg: message.msg,left:true}])
                 
                 this.scollToButtom();
-            }else {
+            }else {  //code 为 3的情况
                 //console.log("totallist: " + message.totallist)
                 console.log("code3: " + code)
                 for(var val in message.totallist){ //val = gid
@@ -267,8 +280,8 @@ export default {
                     // var index = this.idMapArray.size
                     // console.log("index: " + index )
 
-                    this.test.push([{cid: this.cid,name: 'name',msg: '',left:true}]) //重要，第一条插入对象数组的数组中的对象的元素，必须含数组格式
-                    this.idMapArray.set(val2,this.idMapArray.size)
+                    this.test.push([{cid: this.cid,name: 'name',msg: '',left:true}]) //重要，第一条插入对象数组的数组中的对象的元素，必须含数组格式（创建该群的第一条空消息）
+                    this.idMapArray.set(val2,this.idMapArray.size)  //gid 匹配 test[i][] i下标
                     this.$store.commit('updatecidMapGidinfo',[val2,info])
                     this.$store.commit('addTabs',[val2,info.groupname,'gid',0,0])
                     
@@ -278,7 +291,7 @@ export default {
                 // this.$store.commit('test',"testchange")
 
 
-                console.log("commit")
+                console.log("commit good info")
                 // this.$store.state.user.tabs.forEach(function(value){
                 //     console.log( value.gid + value.groupname)
                 // })
@@ -289,13 +302,13 @@ export default {
                 //     console.log(element)
                 // });
                 
-                this.$store.state.user.cidMapTotallist.forEach(function(value, key) {
-                    console.log(key, value);
+                // this.$store.state.user.cidMapTotallist.forEach(function(value, key) {
+                //     console.log(key, value);
 
-                    value.forEach(function(list){
-                        console.log(list)
-                    })
-                });
+                //     value.forEach(function(list){
+                //         console.log(list)
+                //     })
+                // });
             }
 
         },

@@ -68,6 +68,7 @@ export default {
         return {
             token:'',
             cid:'',
+            email:'',
             password:'',
             message:'',
             checkemail:false,
@@ -79,7 +80,7 @@ export default {
         }
     },methods: {
         onInputid(e){
-            this.cid = e.target.value
+            this.email = e.target.value
             if(this.emailRegex.test(this.cid)){
                 this.checkemail = true
             }
@@ -115,7 +116,7 @@ export default {
             // }
             if(this.checkpass && this.checkpass){
                 //console.log("y")
-                var json = '{"cid":"' + this.cid + '","password":"' + this.password + '"}'
+                var json = '{"email":"' + this.email + '","password":"' + this.password + '"}'
                 axios({
                     method:"post",
                     url:"/api/login/logins",
@@ -125,11 +126,23 @@ export default {
 
                 }).then((res)=>{
                     // console.log(res.data);
-                    if (res.data != "400"){
+                    if (res.data != "400" && res.data !=500){
                         // console.log("AAAAAAAA");
 
                         localStorage.setItem("token",res.data)
-                        localStorage.setItem("cid",this.cid)
+                        var json2 = '{"email":"' + this.email + '"}'
+                        axios({
+                            method:"post",
+                            url:"/api/login/getCid",
+                            params:{
+                                json2
+                            },
+                         }).then((res2)=>{
+                            // console.log("nc: " + res2.data)
+                            // localStorage.setItem("cid",res2.data)
+                            this.cid = res2.data
+                            // console.log("a:" + this.cid)
+                         });
                         this.$router.push({
                             name:'chatroom',
                             // path:'/chatroom',
@@ -137,7 +150,7 @@ export default {
                         });
                         console.log("test")
                         this.$store.commit('updateCid',this.cid)
-                    }else {
+                    }else if(res.data != "500"){
                         this.incorrectMsg = 'incorret password or username'
                         this.failLogin = true
                         // this.$router.push({
@@ -145,6 +158,9 @@ export default {
                         //     path:'login'
 
                         // });
+                    }else{
+                        this.incorrectMsg = 'user does not exit'
+                        this.failLogin = true
                     }
                 })
             }
@@ -176,7 +192,7 @@ export default {
     }
     body{
         font-family: "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-        font-size: var(0.875rem, 14px);
+        font-size: 0.875rem, 14px;
         line-height: 1.5;
         color: #1f2328;
         background-color: #ffffff;

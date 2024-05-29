@@ -14,7 +14,7 @@ const ModuleUser = {
         IDtype:'ALL', 
         // array : [{cid: "test",name: 'name',msg: 'test message',left:true}],
         groupname:'ALL',
-        currentRoomMsg:0,
+        currentRoomMsg:0, //当前房间信息数量
     },
    
     getters: {
@@ -89,7 +89,13 @@ const ModuleUser = {
           }
         }
       },
-
+      changeToALLroom(state){
+        state.currentRoom = state.tabs[0].gid
+        state.groupname = state.tabs[0].groupname
+        state.currentRoomMsg = state.tabs[0].msg
+        state.IDtype = state.tabs[0].type
+        state.tabs[0].umsg = 0
+      }
 
       // updateChatRoom(state,[key,value]){
       //   state.Array.push(value)

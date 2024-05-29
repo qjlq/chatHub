@@ -36,7 +36,7 @@
 
                     <!-- </form> -->
                 </div>
-                <div class="failLoginMsg" v-if="signfail">incorret input</div>
+                <div class="failLoginMsg" v-if="signfail">{{this.remindMsg}}</div>
             </div>
         </main>
     </body>
@@ -59,7 +59,8 @@ export default {
             emailRegex: /^[a-zA-Z0-9+&*-]+(?:\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,7}$/,
             passRegex:/^[a-zA-Z0-9_+*!@]{8,18}$/,
             nameRegex:/^[a-zA-Z0-9]+(?:[ ]{0,1}[a-zA-Z0-9]+){0,5}$/,
-            signfail:false
+            signfail:false,
+            remindMsg:''
         }
     },
     methods: {
@@ -101,7 +102,7 @@ export default {
         },
         sign(){
             if(this.checkemail && this.checkpass && this.checkrepass && this.checkname){
-                var json = '{"cid":"' + this.cid + '","password":"' + this.password + '","username":"' + this.username + '"}'
+                var json = '{"email":"' + this.cid + '","password":"' + this.password + '","username":"' + this.username + '"}'
                 axios({
                     method:"post",
                     url:"/api/login/signup",
@@ -109,15 +110,18 @@ export default {
                         json
                     },
                 }).then((res)=>{
-                    if (res.data == "y"){
+                    if (res.data == "200"){
                         router.push({
-                            path:'/',
+                            name:'login'
                         });
                     }else {
                         console.log('sign upload error')
+                        this.remindMsg = 'user exit'
+                        this.signfail = true
                     }
                 })
             }else{
+                this.remindMsg = 'incorret input'
                 this.signfail = true
             }
         }

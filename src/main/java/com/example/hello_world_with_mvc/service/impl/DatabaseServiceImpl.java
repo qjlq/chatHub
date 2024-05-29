@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.example.hello_world_with_mvc.entity.Group;
 import com.example.hello_world_with_mvc.entity.User;
 import com.example.hello_world_with_mvc.service.DatabaseService;
+import com.example.hello_world_with_mvc.service.WebSocketServer;
 
 import lombok.extern.slf4j.Slf4j; //log
 @Slf4j
@@ -16,31 +17,34 @@ import lombok.extern.slf4j.Slf4j; //log
 public class DatabaseServiceImpl implements DatabaseService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
-    // 总之，在执行效率方面，JdbcTemplate通常会有更好的性能，因为它允许直接编写SQL语句并有更多的控制权。MyBatis在性能和便捷性之间取得了平衡，而JPA则以自动化和简化为主要优势，但可能在某些情况下性能较差。具体选择哪种方法取决于项目需求、开发团队的经验和技能以及应用场景。
+// 总之，在执行效率方面，JdbcTemplate通常会有更好的性能，因为它允许直接编写SQL语句并有更多的控制权。MyBatis在性能和便捷性之间取得了平衡，而JPA则以自动化和简化为主要优势，但可能在某些情况下性能较差。具体选择哪种方法取决于项目需求、开发团队的经验和技能以及应用场景。
+
+
     @Override
-    public User getVaiUserID(String cid){
+    public User getVaiEmail(String email){
         try {
-            String sql = "select uid,username,password from chat.user where uid = ?";
+            String sql = "select uid,username,password from chat.user where email = ?";
             List<User> result = jdbcTemplate.query(sql,(resultset,i)->{
                 User user = new User();
                 user.setUserId(resultset.getString("uid"));
                 user.setUserName(resultset.getString("username"));
                 user.setPassWord(resultset.getString("password"));
+                log.info("DBid: " + user.getUserId());
                 return user;
-            },cid);
+            },email);
             return result.get(0);
         } catch (Exception e) {
             User user = new User();
             user.setUserId(null);
-            log.info("{} user does ont exit error:{}",cid,e.toString());
-            return user;
+            log.info("{} user does ont exit error:{}",email,e.toString());
+            return user = null;
         }
 
     }
     @Override
-    public int addUser(String uid,String password,String username){
+    public int addUser(String uid,String email,String password,String username){
 
-        return jdbcTemplate.update("insert into chat.user(uid, username, password) values(?, ?,?)",uid, username, password);
+        return jdbcTemplate.update("insert into chat.user(uid,email,username, password) values(?, ?,?,?)",uid, email,username, password);
     }
 
     @Override
@@ -151,6 +155,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         if (number <= 1){ 
             jdbcTemplate.update("delete from chat.groupMember where gid = ?",gid); //删除剩下的一人
             jdbcTemplate.update("delete from chat.groupinfo where gid = ? ",gid); //删除群信息
+            log.info("delete group: " + gid + " name: " + result.get(0).getgroupname());
             return 201; //群人数为1 时 删除群
         }
         return 200;

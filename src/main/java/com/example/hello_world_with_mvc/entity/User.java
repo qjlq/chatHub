@@ -36,8 +36,8 @@ public class User {
     public void setUserName(String userName){
         this.userName = userName;
     }
-    public void setUserId(String userName){
-        this.userName = userName;
+    public void setUserId(String userId){
+        this.userId = userId;
     }
     public void setPassWord(String passWord){
         this.passWord = passWord;

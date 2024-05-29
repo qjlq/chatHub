@@ -9,8 +9,8 @@
                 <button v-on:click="test1" class="button"> <div class="button-image">
                     add Group
                 </div> </button>
-                <button v-on:click="test2" class="button"> <div class="button-image">
-                    delete Group
+                <button v-on:click="test2" class="button" v-if="this.$store.state.user.IDtype == 'gid'"> <div class="button-image">
+                    leave Group
                 </div></button>
             </div>
         </div>
@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 
 export default {
     data() {
@@ -30,12 +31,29 @@ export default {
     methods: {
         test1() {
             this.mainHead = 'test head',
-            this.Number = 9999
+            this.Number = 66666
         },
         test2() {
-            this.mainHead = '',
-            this.Number = 0
-        }
+            var json = '{"ccid":"' + localStorage.getItem("cid") + '","gid":"' + this.$store.state.user.currentRoom + '"}'
+            axios({
+                method:"post",
+                url:"/api/chatcontroller/leaveGroup",
+                headers: {
+                    'token' : localStorage.getItem("token"),
+                },
+                params:{
+                    json
+                },
+                }).then((res2)=>{
+                // console.log("nc: " + res2.data)
+                // localStorage.setItem("cid",res2.data)
+                    console.log("leave group: " + this.$store.state.user.currentRoom + " state: " + res2)
+                    this.$store.commit('deleteTabs',this.$store.state.user.currentRoom)
+                    this.$store.commit('changeToALLroom')
+
+                // console.log("a:" + this.cid)
+                });
+            }
     },
 }
 </script>

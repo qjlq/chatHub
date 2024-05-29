@@ -108,7 +108,11 @@ public class WebSocketServer {
         /**
          * session.getId()：当前session会话会自动生成一个id，从0开始累加的。
          */
-        this.cid = config.getUserProperties().get("cid").toString();
+        try {
+            this.cid = config.getUserProperties().get("cid").toString();
+        } catch (Exception e) {
+            log.info("{} token过期 / 非法访问",getTimeString());
+        }
         log.info("cid f: " + cid);
         log.info("{} connecting: ==> session_id = {}， cid = {}",getTimeString(), session.getId(), cid);
         //加入 Map中。将页面的cid和session绑定或者session.getId()与session
@@ -117,7 +121,6 @@ public class WebSocketServer {
         if (!onlineSessionClientMap.containsKey(cid)){
             onlineSessionClientMap.put(cid, session);
             onlineSessionClientCount.incrementAndGet();
-        
         
         }
 
@@ -254,17 +257,32 @@ public class WebSocketServer {
     }
 //发送群消息
     private void sendToGroup(String message,String gid) {
-
+        
         onlineSessionClientMap.forEach((onlinecid, toSession) -> { 
-            gidMapCid.get(gid).forEach(lcid -> {
-            // 遍历在线map集合
-            //log.info("acc"+this.cid);
-                if (lcid.equalsIgnoreCase(onlinecid) && onlinecid != this.cid) {
-                    log.info("{} gsend: cid = {} ==> tocid = {}, message = {}",getTimeString(), cid, onlinecid, message);
-                    // toSession.getAsyncRemote().sendText(message);
-                    sendWithform(toSession,cid,gid,fromname,message,1);
-                }
-            });
+            try {
+                gidMapCid.get(gid).forEach(lcid -> {
+                    // 遍历在线map集合
+                    //log.info("acc"+this.cid);
+                        if (lcid.equalsIgnoreCase(onlinecid) && onlinecid != this.cid) {
+                            log.info("{} gsend: cid = {} ==> tocid = {}, message = {}",getTimeString(), cid, onlinecid, message);
+                            // toSession.getAsyncRemote().sendText(message);
+                            sendWithform(toSession,cid,gid,fromname,message,1);
+                        }
+                    });
+            } catch (Exception e) {
+                initGroup(this.cid);
+                gidMapCid.get(gid).forEach(lcid -> {
+                    // 遍历在线map集合
+                    //log.info("acc"+this.cid);
+                        if (lcid.equalsIgnoreCase(onlinecid) && onlinecid != this.cid) {
+                            log.info("{} gsend: cid = {} ==> tocid = {}, message = {}",getTimeString(), cid, onlinecid, message);
+                            // toSession.getAsyncRemote().sendText(message);
+                            sendWithform(toSession,cid,gid,fromname,message,1);
+                        }
+                    });
+                // TODO: handle exception
+            }
+
         });
 
     }
@@ -416,7 +434,7 @@ public class WebSocketServer {
         });
     }
 
-    private void sendOnlineList(Session session){
+    private void sendOnlineList(Session session){  //发送在线用户列表
         onlineSessionClientMap.forEach((onlinecid, toSession) -> {
             //log.info(onlinecid);
             if (!onlinecid.equals(this.cid)){

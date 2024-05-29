@@ -60,6 +60,7 @@ public class UserServicelmpl implements UserService {
         try {
             int state = database.DeleteCidViaGroupMember(gid, cid);
             if (state == 201){
+                socketServer.deleteGroupMsg(gid, cid);
                 return "201";
             }else if (state == 200) {
                 return "200";
