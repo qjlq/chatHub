@@ -81,7 +81,7 @@ export default {
     },methods: {
         onInputid(e){
             this.email = e.target.value
-            if(this.emailRegex.test(this.cid)){
+            if(this.emailRegex.test(this.email)){
                 this.checkemail = true
             }
             else{
@@ -114,7 +114,7 @@ export default {
             //     error.className = "error active";
 
             // }
-            if(this.checkpass && this.checkpass){
+            if(this.checkpass && this.checkemail){
                 //console.log("y")
                 var json = '{"email":"' + this.email + '","password":"' + this.password + '"}'
                 axios({
