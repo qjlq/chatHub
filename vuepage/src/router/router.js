@@ -1,8 +1,8 @@
 const routes = [
-    // {
-    //   path: '/',
-    //   redirect: '/login',
-    // },
+    {
+      path: '/',
+      redirect: '/login',
+    },
     {
       // path: '/chatroom/:cid',
       path: '/chatroom',

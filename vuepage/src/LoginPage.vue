@@ -11,13 +11,13 @@
                 <!-- <form novalidate> -->
                     <div class="container-input">
                         <!-- <form action="" accept-charset="UTF-8" data-turbo="false" method="post"> -->
-                            <label for="login_field">Username</label>
+                            <label for="login_field">Email</label>
                             <input @input="onInputid" type="email" name="cid" id="cid" 
                                     :class="['input-box',{'invalid':!this.checkemail}]" autocapitalize="off" autocorrect="off" 
                                     autocomplete="username" autofocus="autofocus" required="required">
                             <p class="reminder" v-if="!this.checkemail">please input an email</p>
                             <label for="login_field">Password</label>
-                            <input @input="onInputpw" type="password" name="password" id="password" 
+                            <input @input="onInputpw" type="password" name="password" id="password"  @keydown.enter = "logins"
                                     :class="['input-box',{'invalid':!this.checkpass}]" autocapitalize="off" autocorrect="off" 
                                     autocomplete="password" autofocus="autofocus" required="required">
                             <p class="reminder" v-if="!this.checkpass">8-18个字符，可包含a-zA-Z0-9_+*-!@</p>
@@ -139,7 +139,7 @@ export default {
                             },
                          }).then((res2)=>{
                             // console.log("nc: " + res2.data)
-                            // localStorage.setItem("cid",res2.data)
+                            localStorage.setItem("cid",res2.data)
                             this.cid = res2.data
                             // console.log("a:" + this.cid)
                          });

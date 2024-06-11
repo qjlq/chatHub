@@ -3,8 +3,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import routes from './router/router.js'
 import {ElNotification} from "element-plus"
-//import ElNotification from "element-plus"
-//import 'element-plus/dist/index.css'
+// import ElNotification from "element-plus"
+import 'element-plus/dist/index.css'
 
 const router = createRouter({
 // 这里使用hash模式路由
@@ -27,7 +27,7 @@ const router = createRouter({
 //   } else next()
 // })
 
-//var isAuthenticated = null
+// var isAuthenticated = null
 router.beforeEach(async (to, from) => {
   from.fullPath
   // console.log("r1: " + localStorage.getItem('token') +" cid: " +localStorage.getItem('cid'))

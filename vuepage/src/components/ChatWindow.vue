@@ -4,7 +4,7 @@
             :key = "tester.cid"    
         class="message-body"> 
           <!--message-body 弃用  -->
-            <div v-if="tester.left && tester.msg != ''" class="message-container">
+            <div v-if="tester.left && tester.msg !='' " class="message-container">
                 <div class="message-container">
                     <div class="message-head">
                         <div class="message-image">
@@ -18,7 +18,7 @@
             </div>
 
             <div v-if = "!tester.left" class="message-user">
-                <div class="message-container">
+                <div :class="['message-container', { 'message-container-right': !tester.left}]">
                     <div class="message-head">
                         <div class="message-image">
                             {{tester.name}}
@@ -48,12 +48,12 @@
             </button> -->
         </div>
         <label for="chat-input" class="input-label">
-            <textarea :value='newMsg' @input="onInput" name="input-area" id="chat-input" cols="30" rows="3" style="font-size: 14px;" class="input-text"
+            <textarea :value='newMsg'  @keydown.enter = "sendMsg" @input="onInput" name="input-area" id="chat-input" cols="30" rows="3" style="font-size: 14px;" class="input-text"
             placeholder="Enter to send"></textarea>
-            <button class="send-button" @click="sendMsg" @keyup.enter="sendMsg">
+            <button class="send-button" @click="sendMsg" >
                 <div class="button-image">
                 </div>
-                <div class="button-text">send</div>
+                <div class="button-text"> <svg t="1718034927159" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4386"><path d="M0 1024l106.496-474.112 588.8-36.864-588.8-39.936-106.496-473.088 1024 512z" p-id="4387" fill="#ffffff"></path></svg></div>
             </button>
         </label>
     </div>
@@ -106,7 +106,7 @@ export default {
         initWebSocket() {
         // WebSocket与普通的请求所用协议有所不同，ws等同于http，wss等同于https
             this.cid = localStorage.getItem("cid")
-
+ 
             console.log("调用了链接websock  ，用户id为   ："+this.cid + "aaa:" + localStorage.getItem("cid"))
             //var reqUrl = "http://localhost:2234/websocket/" + this.cid;
             // var reqUrl = "http://localhost:2234/websocket/" ;  //local
@@ -392,10 +392,15 @@ export default {
     }
     .send-button{
         border-radius: 10px;
+        border: 1px solid #dedede;
         background-color: #1d93ab;
         color: #fff;
         cursor: pointer;
         margin-right: 16px;
+        /* text-align: center; */
+        line-height: 50px;
+        justify-content: center;
+        align-items: center;
     }
     .button-image{
         width: 16px;
@@ -433,6 +438,14 @@ export default {
         flex-direction: column;
         align-items: flex-start;
     }
+
+    .message-container-right{
+        /* text-align: right; */
+        /* justify-content: flex-end; */
+        align-items: flex-end;
+        /* justify-content: right; */
+    }
+
     .message-head{
         margin-top: 20px;
         display: flex;
@@ -457,7 +470,9 @@ export default {
         width: 30;
         height: 30;
         fill: none;
-        display: block;
+        /* display: block; */
+        /* align-items: right; */
+        /* justify-content: right; */
         unicode-bidi: isolate;
         
     }

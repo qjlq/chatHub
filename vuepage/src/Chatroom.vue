@@ -166,14 +166,16 @@
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
-    /* margin-top: 60px; */
+    margin-top: 5vh;
   }
   body {
     background-color: #fafafa;
     color: #303030;
     margin: 0;
     padding: 0;
+    /* width: 100rem; */
     width: 100vw;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -189,14 +191,24 @@
     flex-direction: row;
     color: #303030;
     background-color: #fff;
-    min-width: 600px;
+    /* min-width: 600px;
     min-height: 370px;
+    max-width: 1200px; */
+    /* min-width: 600rem;
+    min-height: 370rem;
+    max-width: 1200rem; */
+    min-width: 300px;
+    min-height: 175px;
     max-width: 1200px;
     display: flex;
     overflow: hidden;
     box-sizing: border-box;
     width: 90vw;
     height: 90vh;
+    /* width: 90vmax;
+    height: 90vmin; */
+    /* width: 90vmin;
+    height: 90vmax; */
   }
 
   .chat {
