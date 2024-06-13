@@ -156,7 +156,7 @@ export default {
 
         },
         sendMsg(){
-            if (this.newMsg != ''){
+            if (this.newMsg != '' && this.newMsg != null){
                 // this.test.push({cid : cid++,msg: this.newMsg,left:false})
                 // this.newMsg = ''
                 //this.test.push({cid : this.cid,name : this.name ,msg: this.newMsg,left:false})
@@ -178,6 +178,8 @@ export default {
                 this.newMsg = ''
                 this.changeTabsNumber(this.$store.state.user.currentRoom)  //增加消息数及未读消息
             
+            }else{
+                alert("不可发送空消息")
             }
         },
         changeTabsNumber(id){

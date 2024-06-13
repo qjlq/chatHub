@@ -1,11 +1,15 @@
 <template>
-
   <html style="--sidebar-width: 25%;" lang="en">
     <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect" router>
       <el-menu-item index="/chatroom">ChatRoom</el-menu-item>
       <el-sub-menu index="2">
         <template #title>Profile</template>
         <el-menu-item index="/login" @click="signOut">Sign out</el-menu-item>
+      </el-sub-menu>
+      <el-sub-menu index="3">
+        <template #title>Note</template>
+        <el-menu-item index="/note">WebNote</el-menu-item>
+        <el-menu-item index="/labOne">lab1</el-menu-item>
       </el-sub-menu>
     </el-menu>
 <body>
@@ -181,7 +185,8 @@
     align-items: center;
     user-select: none;
     touch-action: pan-x pan-y;
-    overflow: hidden;
+    /* overflow: hidden; */
+    overflow-y: auto;
   }
 
   .window {

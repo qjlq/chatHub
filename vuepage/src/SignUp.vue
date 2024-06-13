@@ -111,9 +111,11 @@ export default {
                     },
                 }).then((res)=>{
                     if (res.data == "200"){
+                        alert("注册成功")
                         router.push({
                             name:'login'
                         });
+                        
                     }else {
                         console.log('sign upload error')
                         this.remindMsg = 'user exit'

@@ -25,6 +25,16 @@ const routes = [
       name: 'notFund',
       component: () => import('@/NotFund.vue'),  
     },
+    {
+      path: '/note',
+      name: 'note',
+      component: () => import('@/WebNote.vue'), 
+    },
+    {
+      path: '/labOne',
+      name: 'labOne',
+      component: () => import('@/labOne.vue'), 
+    }
 
   ]
 

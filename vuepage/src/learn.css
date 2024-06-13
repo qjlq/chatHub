@@ -1,0 +1,19 @@
+body {
+    background-color: powderblue;
+  }
+  h1 {
+    color: blue;
+  }
+  h2 {
+    color: rgb(200, 29, 206);
+    font-family: verdana;
+    font-size: 300%;
+    border: 2px solid rgb(1, 5, 5);
+  }
+  h3 {
+    border: 2px solid rgb(1, 2, 2);
+    padding: 30px; 
+  }
+  p {
+    color: red;
+  }
