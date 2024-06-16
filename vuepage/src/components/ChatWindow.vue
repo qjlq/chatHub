@@ -216,7 +216,7 @@ export default {
                         console.log(message.code)
                         if(message.cid == this.cid){
                             this.name = message.name;
-                        }else if(!this.idMapArray.has(message.cid)){
+                        }else if(!this.idMapArray.has(message.cid)){ //设置单对单按钮
                             this.test.push([{cid: message.cid,name: message.name, msg: '',left:true}])
                             this.idMapArray.set(message.cid,this.idMapArray.size)
                         }
