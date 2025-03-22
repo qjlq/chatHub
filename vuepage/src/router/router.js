@@ -8,7 +8,12 @@ const routes = [
       path: '/chatroom',
       name: 'chatroom',
       // 懒加载路由
-      component: () => import('@/ChatRoom.vue'), 
+      component: () => import('@/Chatroom.vue'), 
+    },
+    {
+      path: '/video',
+      name: 'video',
+      component: () => import('@/VideoPlayer.vue'),  
     },
     {
       path: '/login',
