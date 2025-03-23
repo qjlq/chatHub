@@ -12,6 +12,8 @@ import 'element-plus/dist/index.css'
 import router from './router.config.js'
 import store from './store'
 
+import VueVideoPlayer from 'vue-video-player'
+import 'video.js/dist/video-js.css'
 
 // const store = createStore({
 //   modules: {
@@ -24,6 +26,7 @@ const app = createApp(App)
 // app.use(router).mount("#app")
 //router.use(ElementPlus)
 app.use(ElementPlus)
+app.use(VueVideoPlayer)
 app.use(router).use(store)
 router.isReady().then(() => {
     app.mount("#app");

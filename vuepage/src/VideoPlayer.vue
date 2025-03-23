@@ -1,121 +1,89 @@
 <template>
-    <div class="video-player-container">
-      <!-- 播放器容器 -->
-      <video-player 
-        ref="videoPlayer"
-        class="vjs-custom-skin"
-        :options="playerOptions"
-        @ready="onPlayerReady"
-        @play="onPlayerPlay"
-      ></video-player>
-  
-      <!-- 视频信息 -->
-      <div class="video-info">
-        <h2>{{ videoDetails.title }}</h2>
-        <p>{{ videoDetails.description }}</p>
-      </div>
-    </div>
-  </template>
-  
-  <script>
-  import { videoPlayer } from 'vue-video-player'
-  
-  export default {
-    components: { videoPlayer },
-    data() {
-      return {
-        videoDetails: {},  // 视频详细信息
-        playerOptions: {
-          playbackRates: [0.5, 1.0, 1.5, 2.0], // 播放速度
-          autoplay: false, // 自动播放
-          muted: false,    // 静音
-          loop: false,     // 循环播放
-          preload: 'auto', // 预加载
-          language: 'zh-CN',
-          aspectRatio: '16:9',
-          fluid: true,    // 流体模式
-          sources: [{
-            type: 'video/mp4',
-            src: '' // 视频源地址
-          }],
-          poster: '',     // 封面图
-          notSupportedMessage: '此视频暂无法播放',
-          controlBar: {
-            timeDivider: true,
-            durationDisplay: true,
-            remainingTimeDisplay: false,
-            fullscreenToggle: true // 全屏按钮
-          }
-        }
-      }
-    },
-    mounted() {
-      this.fetchVideoData()
-    },
-    methods: {
-      async fetchVideoData() {
-        try {
-        //   const videoId = this.$route.params.id
-        //   const response = await this.$axios.get(`/api/videos/${videoId}/`)
-          const response = await this.$axios.get(`/api/videos/`)
+  <div class="video-container">
+    <!-- 视频播放器 -->
+    <video-player 
+      ref="videoPlayer"
+      class="vjs-custom-skin"
+      :options="playerOptions"
+      @ready="onPlayerReady"
+    ></video-player>
+    
+    <!-- 加载状态提示 -->
+    <div v-if="isLoading" class="loading">加载中...</div>
+  </div>
+</template>
 
-          this.videoDetails = response.data
-          
-          // 更新播放器配置
-          this.playerOptions.sources[0].src = response.data.url
-          this.playerOptions.poster = response.data.thumbnail
-          
-          // 如果有字幕
-          if(response.data.subtitles) {
-            this.playerOptions.tracks = response.data.subtitles.map(sub => ({
-              src: sub.url,
-              kind: 'subtitles',
-              srclang: sub.language,
-              label: sub.label,
-              default: sub.default
-            }))
-          }
-        } catch (error) {
-          console.error('获取视频数据失败:', error)
-        }
-      },
-  
-      onPlayerReady(player) {
-        console.log('播放器已就绪', player)
-      },
-  
-      onPlayerPlay(player) {
-        console.log('视频开始播放', player)
+<script>
+// import axios from 'axios';
+import { VideoPlayer } from 'vue-video-player';
+import 'video.js/dist/video-js.css';
+
+export default {
+  components: { VideoPlayer },
+  data() {
+    return {
+      isLoading: true,
+      playerOptions: {
+        autoplay: false,   // 是否自动播放
+        controls: true,    // 显示控制条
+        fluid: true,       // 自适应容器
+        sources: [{        // 视频源配置
+          type: 'video/mp4',
+          src: '/api/videos/video'          // 动态填充视频URL
+        }],
+        // sources: [],       // 视频源配置
+        poster: '',        // 可选封面图
+        techOrder: ['html5'] // 强制使用HTML5播放
       }
+    };
+  },
+  methods: {
+    // // 播放器准备就绪
+    onPlayerReady() {
+      this.isLoading = false;
+    },
+    // // 获取视频数据
+    // async fetchVideo() {
+    //   try {
+    //     // const videoName = 'sample.mp4'; // 替换为实际视频名称
+    //     // console.log ()
+    //     const response = await axios.get(`/api/videos/video`, {
+    //       responseType: 'blob' // 重要：指定响应类型为二进制流
+    //     });
+
+    //     // 将Blob转换为可播放的URL
+    //     const blob = new Blob([response.data], { type: 'video/mp4' });
+    //     const videoUrl = URL.createObjectURL(blob);
+        
+    //     // 更新播放器源
+    //     this.playerOptions.sources = videoUrl;
+    //   } catch (error) {
+    //     console.error('视频加载失败:', error);
+    //     this.isLoading = false;
+    //   }
+    // }
+  },
+  async mounted() {
+    await this.fetchVideo();
+  },
+  beforeUnmount() {
+    // 组件销毁时释放Blob URL
+    if (this.playerOptions.sources[0].src) {
+      URL.revokeObjectURL(this.playerOptions.sources[0].src);
     }
   }
-  </script>
-  
-  <style scoped>
-  .video-player-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  .video-info {
-    margin-top: 20px;
-    padding: 15px;
-    background: #f5f5f5;
-    border-radius: 8px;
-  }
-  
-  /* 自定义播放器样式 */
-  .vjs-custom-skin {
-    height: 0;
-    padding-top: 56.25%;
-  }
-  
-  .vjs-custom-skin >>> .video-js {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-  }
-  </style>
+};
+</script>
+
+<style scoped>
+.video-container {
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+</style>

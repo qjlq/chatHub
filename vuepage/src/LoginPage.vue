@@ -144,7 +144,9 @@ export default {
                             // console.log("a:" + this.cid)
                          });
                         this.$router.push({
-                            name:'chatroom',
+                            // name:'chatroom',  //chatrom 原命令
+
+                            name:'video',
                             // path:'/chatroom',
                             //params: { cid: this.cid } 
                         });

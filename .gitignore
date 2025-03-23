@@ -22,7 +22,10 @@ target/
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
+/target/
+/target_old/
 /dist/
+/vuepage/dist_old/
 /nbdist/
 /.nb-gradle/
 build/
