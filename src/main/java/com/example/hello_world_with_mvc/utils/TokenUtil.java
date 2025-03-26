@@ -64,7 +64,7 @@ public class TokenUtil {
         } catch (JWTVerificationException e) {
             // 无效的签名/声明
             log.info("token：过期 cid: {} date: {}" );
-            e.printStackTrace();
+            // e.printStackTrace();
             return null;
         }
     }

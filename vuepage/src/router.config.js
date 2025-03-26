@@ -33,7 +33,9 @@ router.beforeEach(async (to, from) => {
   // console.log("r1: " + localStorage.getItem('token') +" cid: " +localStorage.getItem('cid'))
   // 防止登录后登录
   if((to.name == 'login' || to.name == 'signup') && localStorage.getItem('token') != null && localStorage.getItem('cid') != null){
-    return{name:'chatroom', params:{cid:localStorage.getItem('cid')} }
+    return{name:'chatroom', params:{cid:localStorage.getItem('cid')} }  //chatroom原代码
+    // return{name:'video'}
+
   }
   
   if (

@@ -189,6 +189,7 @@
     overflow-y: auto;
   }
 
+
   .window {
     border: 1px solid #dedede;
     border-radius: 20px;

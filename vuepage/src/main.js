@@ -12,7 +12,7 @@ import 'element-plus/dist/index.css'
 import router from './router.config.js'
 import store from './store'
 
-import VueVideoPlayer from 'vue-video-player'
+import VueVideoPlayer from '@videojs-player/vue'
 import 'video.js/dist/video-js.css'
 
 // const store = createStore({
@@ -31,3 +31,8 @@ app.use(router).use(store)
 router.isReady().then(() => {
     app.mount("#app");
   });
+app.config.errorHandler = (err, vm, info) => {
+  console.error('全局捕获的错误:', err);
+  console.log('发生错误的组件:', vm);
+  console.log('错误来源:', info);
+};
