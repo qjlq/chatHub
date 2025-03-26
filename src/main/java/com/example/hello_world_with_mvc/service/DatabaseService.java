@@ -14,10 +14,14 @@ public interface DatabaseService {
     public String getNameByCid(String cid);
     public List<String> getCidByGid(String gid);
     public List<String> getGidByCid(String gid);
+    public List<String> getVideoByCid(String gid);
     public String getGnamebyGid(String gid);
     public Group getGroupGid(String gid);
     public int AddtoGroupInfo(Group group);
     public int AddtoGroupMember(String gid,String cid);
+
+    public int AddVideo(String video,String cid);
+
     public int DeleteCidViaGroupMember(String gid, String cid);
     public int UpdateGroupNumber(String gid, String number);
 }

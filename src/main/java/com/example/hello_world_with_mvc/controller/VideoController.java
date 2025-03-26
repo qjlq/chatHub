@@ -3,17 +3,24 @@ package com.example.hello_world_with_mvc.controller;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.nio.file.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import com.example.hello_world_with_mvc.service.DatabaseService;
+import com.example.hello_world_with_mvc.utils.TokenUtil;
 import com.example.hello_world_with_mvc.utils.VideoHandler;
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,10 +31,37 @@ import lombok.extern.slf4j.Slf4j;
 public class VideoController {
     @Autowired
     private VideoHandler VideoHandler;
+    @Autowired
+    private DatabaseService database;
+    private static VideoController serverHandler;
 
+    @PostConstruct //通过@PostConstruct实现初始化bean之前进行的操作
+    public void init() {   //普通的autowired 引用database 会报错 null
+        serverHandler = this;  
+        serverHandler.database = this.database;        
+        // 初使化时将已静态化的testService实例化
+    }  
 
+    @PostMapping(value = "/videoList")
+    public Set<String> videoList(String token) {
+        if (TokenUtil.verify(token) != null){
+
+            String cid = TokenUtil.verify(token).getClaim("cid").asString();
+            Set<String> videoList = new HashSet<String>(serverHandler.database.getVideoByCid(cid));
+
+            log.info("videoList request frome [cid]: " + cid + " videoList: " + videoList.toString());
+            // return true;
+            return videoList;
+
+        }
+        else{
+            log.info("videoList request frome with fail token ");
+            // return false;
+            return null;
+        }
+    }
    
-     @RequestMapping(value = "/video/{filename}", method = RequestMethod.GET)
+    @RequestMapping(value = "/video/{filename}", method = RequestMethod.GET)
     public void video(
             // @RequestParam String filename, 
             @PathVariable String filename, 

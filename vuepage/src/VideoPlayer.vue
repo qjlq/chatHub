@@ -6,7 +6,7 @@
         <el-menu-item>
           <el-upload
             ref="upload"
-            class="upload-demo"
+            :class ="['upload-demo',{'upload':this.uploading}]"
             action="/api/upload"
             :data= "tokens"
             :on-preview="handlePreview"
@@ -72,7 +72,7 @@
 </template>
 
 <script>
-// import axios from 'axios';
+import axios from 'axios';
 
 import { defineComponent } from 'vue';
 // import videojs from 'video.js';
@@ -81,6 +81,9 @@ import 'video.js/dist/video-js.css';
 
 export default defineComponent({
   components: { VideoPlayer },
+  created(){
+    this.getVideoList();
+  },
   data() {
     return {
       isLoading:true,
@@ -119,6 +122,20 @@ export default defineComponent({
   },
   methods: {
     // // 播放器准备就绪
+    getVideoList() {
+      var token = localStorage.getItem("token")
+      axios({
+          method:"post",
+          url:"/api/videos/videoList",
+          params:{
+            token
+          },
+      }).then((res2)=>{
+          this.videoLsit = res2.data;
+          console.log("get video list: " + res2.data)
+
+      });
+    },
     onPlayerReady() {
       this.isLoading = false;
     },
@@ -167,6 +184,7 @@ export default defineComponent({
       console.log("success"+res+file.name+fileList);
       this.$refs.upload.clearFiles();
       this.uploading = false;
+      this.videoLsit.push(file.name);
     },
     handleExceed(files, fileList){
       console.log("handle Exceed"+files.name+fileList);
@@ -243,6 +261,10 @@ export default defineComponent({
     margin-top: 5vh;
   }
 
+.upload{
+  margin-bottom: 80%;
+  /* padding-left: 50%; */
+}
 
 .video-container {
   max-width: 800px;

@@ -89,6 +89,20 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     @Override
+    public List<String> getVideoByCid(String cid){
+        try {
+            String sql = "select video from chat.VideoList where cid = ?";
+            List<String> result = jdbcTemplate.query(sql,(resultset,i)->{
+                return resultset.getString("video");
+            },cid);
+            return result;
+        } catch (Exception e) {
+            log.info("{} cid does not exit error:{}",cid,e.toString());
+            return null;
+        }
+    }
+
+    @Override
     public String getGnamebyGid(String gid){
         try {
             String sql = "select groupname from chat.groupinfo where gid = ?";
@@ -132,6 +146,11 @@ public class DatabaseServiceImpl implements DatabaseService {
     @Override
     public int AddtoGroupMember(String gid,String cid){
         return jdbcTemplate.update("insert into chat.groupMember(gid, cid ) values(?, ?)",gid,cid);
+    }
+
+    @Override
+    public int AddVideo(String video,String cid){
+        return jdbcTemplate.update("insert into chat.VideoList(video, cid ) values(?, ?)",video,cid);
     }
 
     @Override
