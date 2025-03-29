@@ -34,8 +34,8 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 public class FileController {
     
-    // private String uploadDir = "/home/yaukalok/myweb/UserVideo/";
-    private String uploadDir = "C:\\Users\\yau ka lok\\Desktop";
+    private String uploadDir = "/home/yaukalok/myweb/UserVideo/";
+    // private String uploadDir = "C:\\Users\\yau ka lok\\Desktop";
     @Autowired
     private DatabaseService database;
     private static FileController serverHandler;

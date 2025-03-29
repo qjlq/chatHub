@@ -1,7 +1,7 @@
 <template>
   <html style="--sidebar-width: 25%;" lang="en">
     <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect" router>
-      <el-menu-item index="/chatroom">ChatRoom</el-menu-item>
+      <el-menu-item index="/video">gmyTest</el-menu-item>
       <el-sub-menu index="2">
         <template #title>Profile</template>
         <el-menu-item index="/login" @click="signOut">Sign out</el-menu-item>

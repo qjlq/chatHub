@@ -6,7 +6,7 @@
                     <img src=".\assets\image1.jpg" alt="imgae" width="200" height="200" style="width:100px; height:100px; border-radius:100%;" >
                 </div>
                 <div class="container-header">
-                    811 chatRoom
+                    GymTest
                 </div>
                 <!-- <form novalidate> -->
                     <div class="container-input">

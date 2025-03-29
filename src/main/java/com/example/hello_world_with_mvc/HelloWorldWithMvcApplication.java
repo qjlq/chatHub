@@ -17,7 +17,7 @@ public class HelloWorldWithMvcApplication {
 
 	public static void main(String[] args) throws IOException {
 		SpringApplication.run(HelloWorldWithMvcApplication.class, args);
-
+        
 	    //    ServerSocket ss = new ServerSocket(2236);
         // while(true){
         //     Socket sock=ss.accept();

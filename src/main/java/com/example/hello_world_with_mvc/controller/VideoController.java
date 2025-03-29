@@ -70,7 +70,8 @@ public class VideoController {
     ) {
         try {
             // Path path = Paths.get("/media/SSD/DataDisk/gym/events/");
-            String RootPath = "E:\\kaf\\";
+            String RootPath = "/home/yaukalok/myweb/UserVideo/";
+            // String RootPath = "E:\\kaf\\";
             // String filename = request.getParameter("filename");
             log.info("filename: " + filename);
 // String filename = "zNL3kn3UBmg.mp4";
