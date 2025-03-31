@@ -1,6 +1,7 @@
 package com.example.hello_world_with_mvc.service;
 
 import java.io.IOException;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
@@ -15,6 +16,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.websocket.ClientEndpoint;
+import jakarta.websocket.CloseReason;
+import jakarta.websocket.ContainerProvider;
 import jakarta.websocket.Endpoint;
 import jakarta.websocket.EndpointConfig;
 import jakarta.websocket.OnClose;
@@ -23,6 +27,7 @@ import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.SendHandler;
 import jakarta.websocket.Session;
+import jakarta.websocket.WebSocketContainer;
 import jakarta.websocket.server.HandshakeRequest;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
@@ -66,10 +71,13 @@ public class WebSocketServer {
     private DatabaseService database;
     private static WebSocketServer serverHandler ; //service to service 要加
 
+    // @Autowired
+    // private WebSocketClient client;
+
     @PostConstruct //通过@PostConstruct实现初始化bean之前进行的操作
     public void init() {   //普通的autowired 引用database 会报错 null
         serverHandler = this;  
-        serverHandler.database = this.database;        
+        serverHandler.database = this.database;  
         // 初使化时将已静态化的testService实例化
     }  
     /**
@@ -94,6 +102,7 @@ public class WebSocketServer {
     public String fromname;
     private Session session;
     private Gson gson = new Gson();
+    WebSocketClient client;
 
     /**
      * 连接建立成功调用的方法。由前端<code>new WebSocket</code>触发
@@ -121,6 +130,10 @@ public class WebSocketServer {
         if (!onlineSessionClientMap.containsKey(cid)){
             onlineSessionClientMap.put(cid, session);
             onlineSessionClientCount.incrementAndGet();
+            if (onlineSessionClientMap.size() == 1){
+                client = new WebSocketClient();
+                client.connect("ws://localhost:8000/ws");      
+            }
         
         }
 
@@ -225,6 +238,17 @@ public class WebSocketServer {
         log.error("{}:WebSocket error：{}" ,getTimeString(),error.getMessage());
         System.out.println(error.getMessage());
         error.printStackTrace();
+    }
+
+    public void sendMissonData(String message) {
+        // 遍历在线map集合
+        onlineSessionClientMap.forEach((onlinecid, toSession) -> {
+            // 排除掉自己
+            log.info("{} send: cid = {} ==> tocid = {}, message = {}",getTimeString(), cid, onlinecid, message);
+            // toSession.getAsyncRemote().sendText(message);
+            sendWithform(toSession,onlinecid,"",fromname,message,1); //defualt code 1
+            
+        });
     }
 
     /**
@@ -443,6 +467,59 @@ public class WebSocketServer {
             }
         });
     }
-    
 
+    @ClientEndpoint
+    public class WebSocketClient {
+        private Session session;
+        @OnOpen
+        public void onOpen(Session session) {
+            this.session = session;
+            System.out.println("Connected to FastAPI WebSocket");
+            sendMessage("来自Spring Boot的初始消息");
+        }
+
+        @OnMessage
+        public void onMessage(String message) {
+            System.out.println("收到FastAPI响应: " + message);
+            sendMissonData(message);
+        }
+
+        @OnClose
+        public void onClose(CloseReason reason) {
+            System.out.println("连接关闭: " + reason.getReasonPhrase());
+        }
+
+        @OnError
+        public void onError(Throwable throwable) {
+            System.err.println("WebSocket错误: ");
+            throwable.printStackTrace();
+        }
+
+        public void sendMessage(String message) {
+            try {
+                session.getBasicRemote().sendText(message);
+            } catch (IOException e) {
+                throw new RuntimeException("消息发送失败", e);
+            }
+        }
+
+        public void connect(String endpoint) {
+            try {
+                WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+                container.connectToServer(this, URI.create(endpoint));
+            } catch (Exception e) {
+                throw new RuntimeException("连接失败", e);
+            }
+        }
+
+        public void close() {
+            try {
+                if (session != null && session.isOpen()) {
+                    session.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

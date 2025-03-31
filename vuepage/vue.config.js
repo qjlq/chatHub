@@ -24,10 +24,10 @@ module.exports = {
         
         proxy: {
             '/api': {
-                // target: 'http://localhost:2234', // 指定Spring Boot后端的地址和端口
+                target: 'http://localhost:2234', // 指定Spring Boot后端的地址和端口
                 // target: 'http://chat.qjlkalok.xyz:2234', // 指定Spring Boot后端的地址和端口
                 // target: 'http://chatroom.qjlkalok.xyz:2234', // 指定Spring Boot后端的地址和端口
-                target: 'http://qjlkalok.xyz:2234', // 指定Spring Boot后端的地址和端口
+                // target: 'http://qjlkalok.xyz:2234', // 指定Spring Boot后端的地址和端口
 
 
                 //secure: false,  // 如果是https接口，需要配置这个参数

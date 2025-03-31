@@ -177,6 +177,7 @@ export default defineComponent({
       return this.$confirm(`Cancel the transfert of ${ file.name } ?`);
     },
     signOut(){
+      // localStorage.getItem("socket").close();
       localStorage.clear();
       this.$router.push('/login');
     },

@@ -113,6 +113,8 @@ export default {
             //var reqUrl = "http://chat.qjlkalok.xyz:2234/websocket/";
             // var reqUrl = "http://chatroom.qjlkalok.xyz/websocket/";
             var reqUrl = "http://chatroom.qjlkalok.xyz/api/websocket/";
+            // var reqUrl = "http://gymtest.qjlkalok.xyz/api/websocket/";
+            // var reqUrl = "http://127.0.0.1/api/websocket/";
             var protacal = "wss"
             // var protacal = "ws"
 
@@ -120,6 +122,9 @@ export default {
 
             try {
                 this.socket = new WebSocket(reqUrl.replace("http", protacal),localStorage.getItem("token"));
+
+                // localStorage.setItem("socket", this.socket)
+                
                 // this.socket = new WebSocket(reqUrl.replace("http", "wss"),localStorage.getItem("token"));
 
                 //this.socket = new WebSocket(reqUrl.replace("http", "ws"),localStorage.getItem("token"));

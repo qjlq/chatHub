@@ -15,6 +15,7 @@ const ModuleUser = {
         // array : [{cid: "test",name: 'name',msg: 'test message',left:true}],
         groupname:'ALL',
         currentRoomMsg:0, //当前房间信息数量
+        socket:null,
     },
    
     getters: {
