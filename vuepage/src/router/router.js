@@ -39,7 +39,12 @@ const routes = [
       path: '/labOne',
       name: 'labOne',
       component: () => import('@/labOne.vue'), 
-    }
+    },
+    {
+      path: '/test',
+      name: 'test',
+      component: () => import('@/TestPage.vue'),  
+    },
 
   ]
 

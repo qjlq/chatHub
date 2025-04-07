@@ -4,28 +4,11 @@
         <el-menu-item index="/chatroom">ChatRoom</el-menu-item>
         <el-menu-item index="/login" @click="signOut">Sign out</el-menu-item>
         <el-menu-item>
-          <el-upload
-            ref="upload"
-            :class ="['upload-demo',{'upload':this.uploading}]"
-            action="/api/upload"
-            :data= "tokens"
-            :on-preview="handlePreview"
-            :before-remove="beforeRemove"
-            :limit="1"
-            :on-exceed="handleExceed"
-            :file-list="fileList"
-            :before-upload="beforeUpload"
-            :on-success="handleSuccess"
-            :on-error="handleError"
-            :on-progress="handleProgress"
-            >
-            <!-- <el-tooltip placement="bottom" effect="light" > -->
-              <!-- <div slot="content" v-html="'mp4 file only,Max size: 5GB'"></div> -->
-              <el-button size="small" type="primary" :class ="[{'uploadButton':!this.uploading}]" v-if="!this.uploading">Click to upload</el-button>
-            <!-- </el-tooltip> -->
-
-          </el-upload>
+          
         </el-menu-item>
+        <!-- <el-menu-item>
+        </el-menu-item> -->
+
       </el-menu>
 
   <body>
@@ -42,6 +25,9 @@
             </el-button>
           </div>
         </div>
+      </div>
+      <div class = "RoomName-header">
+
       </div>
       <div class="video-container">
         <!-- 视频播放器 -->
@@ -63,6 +49,14 @@
         <!-- 加载状态提示 -->
         <!-- <div v-if="isLoading" class="loading">加载中...</div> -->
       </div>
+      <div class="left-bar" v-if="locationList">
+
+        <div class="left-bar-partial">
+          <TaskQueueModal/>
+
+        </div>
+      </div>
+      
 
 
     </div>
@@ -73,6 +67,7 @@
 
 <script>
 import axios from 'axios';
+import TaskQueueModal from './components/TaskQueue.vue'
 
 import { defineComponent } from 'vue';
 // import videojs from 'video.js';
@@ -80,37 +75,63 @@ import { VideoPlayer } from '@videojs-player/vue';
 import 'video.js/dist/video-js.css';
 
 export default defineComponent({
-  components: { VideoPlayer },
+  components: { 
+    VideoPlayer,
+    TaskQueueModal
+  },
   created(){
     this.getVideoList();
   },
   data() {
     return {
+      locationList:false,
       isLoading:true,
       isReady:false,
       videoControls:false,
-      uploading:false,
+      // uploading:false,
       src:null,
       tokens:{
         token: localStorage.getItem("token")
       },
-      fileList:[],
+      // fileList:[],
       // player: null,
       videoLsit: ['bandicam 2022-03-26 19-07-15-079.mp4','bandicam 2022-03-26 19-36-15-867.mp4','脏花.mp4'],
       videoChoosed: null,
-      playerOptions: {
-        // autoplay: false,   // 是否自动播放
-        autoplay: true,   // 是否自动播放
-        // controls: true,    // 显示控制条
-        fluid: true,       // 自适应容器
-        // sources: [{        // 视频源配置
-        //   type: 'video/mp4',
-        //   src: ''         // 动态填充视频URL
-        // }],
-        sources: [],       // 视频源配置
-        poster: '',        // 可选封面图
-        techOrder: ['html5'] // 强制使用HTML5播放
-      }
+
+      tasks: [
+        { 
+          id: 1, 
+          name: '用户数据导出', 
+          user: '张三', 
+          time: new Date('2023-05-15 09:30:00'), 
+          type: 'process', 
+          progress: 75 
+        },
+        { 
+          id: 2, 
+          name: '系统备份', 
+          user: '李四', 
+          time: '2023-05-15 10:15:00', 
+          type: 'backup', 
+          progress: 30 
+        },
+        { 
+          id: 3, 
+          name: '图片上传', 
+          user: '王五', 
+          time: new Date(), 
+          type: 'upload', 
+          progress: 100 
+        },
+        { 
+          id: 4, 
+          name: '日志清理', 
+          user: '赵六', 
+          time: new Date(), 
+          type: 'other', 
+          progress: 5 
+        }
+      ]
     };
   },
   computed: {
@@ -165,87 +186,11 @@ export default defineComponent({
     //     })
     //   })
     // },
-    handleRemove(file, fileList) {
-      this.fileList = fileList
-      console.log("handleRemove", file, fileList);
-
-    },
-    handlePreview(file) {
-      console.log("handlePreview", file.name);
-    },
-    beforeRemove(file) {
-      return this.$confirm(`Cancel the transfert of ${ file.name } ?`);
-    },
     signOut(){
       // localStorage.getItem("socket").close();
       localStorage.clear();
       this.$router.push('/login');
     },
-    handleSuccess(res, file, fileList) {
-      console.log("success"+res+file.name+fileList);
-      this.$refs.upload.clearFiles();
-      this.uploading = false;
-      this.videoLsit.push(file.name);
-    },
-    handleExceed(files, fileList){
-      console.log("handle Exceed"+files.name+fileList);
-
-    },
-    handleError(error, file, fileList){
-      console.log("handle Error"+error+file.name+fileList);
-      // this.$refs.upload.clearFiles();
-      this.uploading = false;
-      if (error.code === '401') {
-        this.$message.error('请先登录！');
-      }else{
-        alert(error);
-      }
-    },
-    handleProgress(event, file, fileList){
-      console.log("handleProgress"+event+file.name+fileList);
-    },
-    beforeUpload(file){
-      // const suffix = file.name.split('.').pop()
-      // const list = ['mp4']
-      // if (list.indexOf(suffix) < 0) {
-      //   this.$message.error('上传的文件只能是 mp4 格式!')
-      //   return false
-      // }
-      // const isLt2M = file.size / 1024 / 1024 /1024 < 5;
-      // if (!isLt2M) {
-      //   this.$message.error('上传文件大小不能超过 5GB!')
-      //   return false
-      // }
-      this.uploading = true;
-      console.log("beforeUpload" + file.name);
-      // var token = localStorage.getItem("token");
-      // // console.log("token: " + token);
-      // var Tokenstate = axios({
-      //   method:"post",
-      //   url:"/api/valid",
-      //   params:{
-      //     token
-      //   }
-      // }).then(res => {
-      //   console.log(res.data);
-      // })
-      // if (Tokenstate != "valid"){
-      //   console.log("start upload： " + file.name + "state:" +Tokenstate);
-      //   return true;
-      // }else{
-      //   console.log("token is invalid" + "state:" +Tokenstate);
-      //   this.uploading = false;
-      //   return false;
-      // }
-      // try {
-      //   const res = await axios.post("/api/valid", { params: token});
-      //   return res.data === "valid"; // 正确阻断上传
-      // } catch {
-      //   this.uploading = false;
-      //   return false;
-      // }
-    }
-
   },
 
 });
@@ -254,7 +199,8 @@ export default defineComponent({
 <style scoped>
 
   #app {
-    font-family: Helvetica, Arial, sans-serif;
+    /* font-family: Helvetica, Arial, sans-serif; */
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
@@ -262,30 +208,60 @@ export default defineComponent({
     margin-top: 5vh;
   }
 
-.upload{
-  margin-bottom: 80%;
-  /* padding-left: 50%; */
-}
+  .el-menu-demo {
+    padding: 0 24px;
+    background: #f8f9fa;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+    margin: 12px;
+  }
 
-.video-container {
-  max-width: 800px;
-  margin: 20px auto;
-  /* flex-direction: column; */
-  /* position: relative; */
-  width: calc(100% - var(--sidebar-width));
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  position: relative;
-}
+  .el-menu-item {
+    height: 56px;
+    font-weight: 500;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 
-.loading {
-  text-align: center;
-  padding: 20px;
-  color: #666;
-}
+  .el-menu-item:hover {
+    background: rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
+  }
 
-body {
+
+  .RoomName-heard {
+    max-width: calc(100% - 100px);
+    overflow: hidden;
+    border-radius: 12px;
+    margin: 1%;
+    min-width: 5vh;
+    min-height: 5vh;
+  }
+  .video-container {
+    /* max-width: 800px;
+    margin: 20px auto; */
+    /* flex-direction: column; */
+    /* position: relative; */
+    /* width: calc(100% - var(--sidebar-width));
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative; */
+
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 1%;
+    aspect-ratio: 16/9;
+    max-height: 95vh;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+  }
+
+  body {
     background-color: #fafafa;
     color: #303030;
     margin: 0;
@@ -304,11 +280,13 @@ body {
 
   .window {
     border: 1px solid #dedede;
-    border-radius: 20px;
-    box-shadow: 50px 50px 100px 10px rgba(0, 0, 0, .1);
+    border-radius: 16px;
+    /* box-shadow: 50px 50px 100px 10px rgba(0, 0, 0, .1); */
+    box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.08);
     flex-direction: row;
     color: #303030;
     background-color: #fff;
+    transition: all 0.3s ease;
     /* min-width: 600px;
     min-height: 370px;
     max-width: 1200px; */
@@ -317,20 +295,18 @@ body {
     max-width: 1200rem; */
     min-width: 300px;
     min-height: 175px;
-    max-width: 1200px;
+    /* max-width: 1200px; */
     display: flex;
     overflow: hidden;
     box-sizing: border-box;
-    width: 90vw;
-    height: 90vh;
+    width: 98vw;
+    height: 98vh;
     /* width: 90vmax;
     height: 90vmin; */
     /* width: 90vmin;
     height: 90vmax; */
   }
-  .uploadButton {
-    margin: 10% 0;
-  }
+
 
   .left-bar {
     top: 0;
@@ -341,9 +317,11 @@ body {
     background-color: #e7f8ff;
     display: flex;
     flex-direction: column;
-    box-shadow: inset -2px 0 2px 0 rgba(0, 0, 0, .05);
+    /* box-shadow: inset -2px 0 2px 0 rgba(0, 0, 0, .05); */
+    box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.08);
     position: relative;
-    transition: width .05s;
+    /* transition: width .05s; */
+    /* transition: all 0.3s ease; */
     overflow-y: auto;
   }
   .left-bar-tittle{
@@ -354,7 +332,8 @@ body {
 
   .left-bar-partial{
     overflow: auto;
-    overflow-x: hidden;
+    /* overflow-x: hidden; */
+
     height: 90vh;
     /* height: 40vh; */
     margin: 10px 0;
@@ -376,6 +355,7 @@ body {
     cursor: pointer;
     transition: background-color 0.3s;
   }
+
   .left-button-blink {
     animation: blink-animation 1s infinite alternate;
   }
@@ -393,3 +373,4 @@ body {
     100% {background-color: #858b91;}
   }
 </style>
+

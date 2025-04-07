@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -35,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.example.hello_world_with_mvc.config.WebSocketConfig;
 import com.example.hello_world_with_mvc.entity.Group;
+import com.example.hello_world_with_mvc.entity.Task.TaskStatus;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -130,9 +132,12 @@ public class WebSocketServer {
         if (!onlineSessionClientMap.containsKey(cid)){
             onlineSessionClientMap.put(cid, session);
             onlineSessionClientCount.incrementAndGet();
+
             if (onlineSessionClientMap.size() == 1){
+                //test python client API
                 client = new WebSocketClient();
-                client.connect("ws://localhost:8000/ws");      
+                client.connect("ws://localhost:8000/ws");
+                client.close();      
             }
         
         }
@@ -468,9 +473,18 @@ public class WebSocketServer {
         });
     }
 
+    public CompletableFuture<String> startTask(String test){
+        WebSocketClient client = new WebSocketClient();
+        client.connect("ws://qjlkalok:8000/ws");
+        client.sendMessage(test);
+        return client.getResponseFuture();
+    }
+
     @ClientEndpoint
     public class WebSocketClient {
         private Session session;
+        private CompletableFuture<String> responseFuture = new CompletableFuture<>();
+        private TaskStatus taskStatus;
         @OnOpen
         public void onOpen(Session session) {
             this.session = session;
@@ -481,7 +495,13 @@ public class WebSocketServer {
         @OnMessage
         public void onMessage(String message) {
             System.out.println("收到FastAPI响应: " + message);
-            sendMissonData(message);
+            if ("success".equals(message)) {
+                responseFuture.complete(message); // 当收到success时完成Future
+            }
+        }
+
+        public CompletableFuture<String> getResponseFuture() {
+            return responseFuture;
         }
 
         @OnClose
