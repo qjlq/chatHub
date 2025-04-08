@@ -86,8 +86,8 @@
           token: localStorage.getItem("token")
         },
         links: [
-          { name: 'ChatRoom', path: '/' },
-          { name: 'Sign Out', path: '/about' },
+          { name: 'ChatRoom', path: '/chatroom' },
+          { name: 'Sign Out', path: '/login' },
         ],
         screenWidth: window.innerWidth
       }

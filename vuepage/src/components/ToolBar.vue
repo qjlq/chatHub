@@ -1,6 +1,6 @@
 <template>
     <div class="button-group">
-      <button
+      <!-- <button
         v-for="(button, index) in buttons"
         :key="index"
         class="group-button"
@@ -9,7 +9,9 @@
         :style="{ backgroundColor: button.color }"
       >
         {{ button.label }}
-      </button>
+      </button> -->
+      <el-button type="primary" @click="regTask">test</el-button>
+      <el-button type="primary" @click="getProgress">test2</el-button>
       <el-input placeholder="Please input" v-model="input"></el-input>
     </div>
   </template>
@@ -30,32 +32,66 @@
   })
     </script> -->
 <script>
+  import axios from 'axios';
+
   export default {
     data() {
         return {
             input: '',
-            buttons : [
-                {
-                    label: '新建',
-                    handler: () => console.log('新建操作'),
-                    color: '#67c23a' // 可选自定义颜色
-                },
-                {
-                    label: '编辑',
-                    handler: () => console.log('编辑操作')
-                },
-                {
-                    label: '删除',
-                    handler: () => console.log('删除操作'),
-                    color: '#f56c6c'
-                },
-                {
-                    label: '禁用按钮',
-                    handler: () => console.log('不会触发'),
-                    disabled: true
-                }
-            ]
+            // buttons : [
+            //     {
+            //         label: '新建',
+            //         handler: () => {
+            //             console.log('新建操作')
+            //         },
+            //         color: '#67c23a' // 可选自定义颜色
+            //     },
+            //     {
+            //         label: '编辑',
+            //         handler: () => console.log('编辑操作')
+            //     },
+            //     {
+            //         label: '删除',
+            //         handler: () => console.log('删除操作'),
+            //         color: '#f56c6c'
+            //     },
+            //     {
+            //         label: '禁用按钮',
+            //         handler: () => console.log('不会触发'),
+            //         disabled: true
+            //     }
+            // ]
         }
+    },
+    methods: {
+        regTask() {
+          // console.log(this.input)
+          axios({
+              method:"post",
+              url:"/api/tasks/submit",
+              params:{
+                  fileName:this.input,
+                  token:localStorage.getItem("token"),
+                  type:'PROCESS_DOCUMENT'
+              },
+
+          }).then((res)=>{
+              console.log(res)
+          })
+        },
+        getProgress() {
+          axios({
+                method:"post",
+                url:"/api/tasks/getProgress",
+                params:{
+                  token:localStorage.getItem("token"),
+                },
+
+            }).then((res)=>{
+                console.log(res)
+            })
+        }
+
     }
   }
 </script>

@@ -2,6 +2,7 @@ package com.example.hello_world_with_mvc.service;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
@@ -102,9 +103,8 @@ public class WebSocketServer {
      */
     public String cid;
     public String fromname;
-    private Session session;
     private Gson gson = new Gson();
-    WebSocketClient client;
+    private Session session;
 
     /**
      * 连接建立成功调用的方法。由前端<code>new WebSocket</code>触发
@@ -133,12 +133,12 @@ public class WebSocketServer {
             onlineSessionClientMap.put(cid, session);
             onlineSessionClientCount.incrementAndGet();
 
-            if (onlineSessionClientMap.size() == 1){
-                //test python client API
-                client = new WebSocketClient();
-                client.connect("ws://localhost:8000/ws");
-                client.close();      
-            }
+            // if (onlineSessionClientMap.size() == 1){
+            //     //test python client API
+            //     client = new WebSocketClient();
+            //     client.connect("ws://localhost:8000/ws");
+            //     client.close();      
+            // }
         
         }
 
@@ -473,35 +473,57 @@ public class WebSocketServer {
         });
     }
 
-    public CompletableFuture<String> startTask(String test){
-        WebSocketClient client = new WebSocketClient();
-        client.connect("ws://qjlkalok:8000/ws");
-        client.sendMessage(test);
-        return client.getResponseFuture();
+
+
+    private WebSocketClient client = new WebSocketClient();
+    private Session clientSession = null;
+
+    // public CompletableFuture<String> getProgress(){
+    public void getProgress(){
+    
+
+        if (clientSession==null || !clientSession.isOpen()){
+            client.connect("ws://localhost:8000/ws");
+            // client.sendMessage(test);
+        }
+        // client.connect("ws://qjlkalok:8000/ws");
+        // return client.getResponseFuture();
     }
 
     @ClientEndpoint
     public class WebSocketClient {
         private Session session;
-        private CompletableFuture<String> responseFuture = new CompletableFuture<>();
-        private TaskStatus taskStatus;
+        // private TaskStatus taskStatus;
         @OnOpen
         public void onOpen(Session session) {
-            this.session = session;
+            clientSession = session;
             System.out.println("Connected to FastAPI WebSocket");
-            sendMessage("来自Spring Boot的初始消息");
+            // sendMessage("来自Spring Boot的初始消息");
         }
 
         @OnMessage
-        public void onMessage(String message) {
-            System.out.println("收到FastAPI响应: " + message);
-            if ("success".equals(message)) {
-                responseFuture.complete(message); // 当收到success时完成Future
-            }
-        }
+        public void onMessage(String message) throws IllegalArgumentException, IOException {
+            log.info("收到消息: " + message);
+            try {
+                synchronized (this) { // 同步块保证线程安全
+                    if (this.session != null && this.session.isOpen()) {
+                        this.session.getBasicRemote().sendPing(ByteBuffer.allocate(0)); // 发送ping消息
+                    }else{
 
-        public CompletableFuture<String> getResponseFuture() {
-            return responseFuture;
+                    }
+                }
+            } catch (IOException e) {
+                // 连接已关闭，停止心跳
+                log.info("connection close by error");
+                // e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            
+            if ("success".equals(message)) {
+                // responseFuture.complete(message); // 当收到success时完成Future
+                this.close();
+            }
         }
 
         @OnClose

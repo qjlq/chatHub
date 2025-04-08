@@ -7,10 +7,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.example.hello_world_with_mvc.entity.Task;
 import com.example.hello_world_with_mvc.entity.Task.TaskStatus;
 
+@Service
 public class TaskQueueService {
     private final BlockingQueue<Task> taskQueue = new LinkedBlockingQueue<>();
     private final AtomicBoolean isProcessing = new AtomicBoolean(false);
@@ -21,6 +23,9 @@ public class TaskQueueService {
     
     @Autowired
     private WebSocketServer socketServer;
+
+    @Autowired
+    private FastApiConnect fastApiConnect;
 
     public synchronized Task submitTask(String fileName, String creator, Task.TaskType type) {
         Task task = new Task();
@@ -48,7 +53,7 @@ public class TaskQueueService {
         // 异步处理任务
         CompletableFuture.runAsync(() -> {
             try {
-                String result = socketServer.startTask(task.getFileName()).get(); // 调用WebSocketServer的startTask方法，返回Future对象, get()方法  阻塞  等待获取结果
+                String result = fastApiConnect.startTask(Integer.parseInt(task.getFileName())).get(); // 调用WebSocketServer的startTask方法，返回Future对象, get()方法  阻塞  等待获取结果
                 if (result.equals("success")) {
                     task.setStatus(TaskStatus.COMPLETED);
                 }
