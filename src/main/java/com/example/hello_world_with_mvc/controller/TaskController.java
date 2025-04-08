@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.hello_world_with_mvc.entity.Task;
 import com.example.hello_world_with_mvc.service.FastApiConnect;
 import com.example.hello_world_with_mvc.service.TaskQueueService;
+import com.example.hello_world_with_mvc.service.VedioWebsocketService;
 import com.example.hello_world_with_mvc.service.WebSocketServer;
 import com.example.hello_world_with_mvc.utils.TokenUtil;
 
@@ -28,7 +29,7 @@ public class TaskController {
     private TaskQueueService taskQueueService;
 
     @Autowired
-    private WebSocketServer client;
+    private VedioWebsocketService client;
 
     @Autowired
     private FastApiConnect fastApiConnect;
