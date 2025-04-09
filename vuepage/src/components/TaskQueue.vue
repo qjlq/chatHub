@@ -36,7 +36,10 @@
           <div class="task-type" :style="{ width: this.columns[3].width || 'auto' }">
             <span :class="'type-' + task.type">{{ getTypeLabel(task.type) }}</span>
           </div>
-          <div class="task-progress" :style="{ width: this.columns[4].width || 'auto' }">
+          <div class="task-status" :style="{ width: this.columns[4].width || 'auto' }">
+            <span :class="'type-' + task.taskStatus">{{ getTypeLabel(task.taskStatus) }}</span>
+          </div>
+          <div class="task-progress" :style="{ width: this.columns[5].width || 'auto' }">
             <div class="progress-container">
               <div class="progress-bar" 
                   :style="{ width: task.progress + '%' }"

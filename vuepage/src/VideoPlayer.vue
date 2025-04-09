@@ -146,15 +146,20 @@ export default defineComponent({
     getVideoList() {
       var token = localStorage.getItem("token")
       axios({
-          method:"post",
-          url:"/api/videos/videoList",
-          params:{
-            token
-          },
+        method:"post",
+        url:"/api/videos/videoList",
+        params:{
+          token
+        },
       }).then((res2)=>{
-          this.videoLsit = res2.data;
-          console.log("get video list: " + res2.data)
-
+        const videoList = res2.data;
+        // console.log("get video list: " + videoLsit)
+        console.log(JSON.stringify(videoList, null, 2));
+        videoList.forEach(video => {
+          console.log("name"+video.fileName);        // 正确
+          console.log("state"+video.keypoint_task);   // 正确（与后端一致）
+          // console.log(video.keypointTask); // 错误（驼峰命名会导致 undefined）
+        });
       });
     },
     onPlayerReady() {

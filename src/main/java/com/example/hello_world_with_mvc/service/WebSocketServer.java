@@ -37,7 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.example.hello_world_with_mvc.config.WebSocketConfig;
 import com.example.hello_world_with_mvc.entity.Group;
-import com.example.hello_world_with_mvc.entity.Task.TaskStatus;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

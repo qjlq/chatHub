@@ -12,6 +12,9 @@
       </button> -->
       <el-button type="primary" @click="regTask">test</el-button>
       <el-button type="primary" @click="getProgress">test2</el-button>
+      <el-button type="primary" @click="getVideoList">VidoeState</el-button>
+      <el-button type="primary" @click="getTaskList">TaskList</el-button>
+
       <el-input placeholder="Please input" v-model="input"></el-input>
     </div>
   </template>
@@ -90,7 +93,61 @@
             }).then((res)=>{
                 console.log(res)
             })
-        }
+        },
+        getVideoList() {
+          var token = localStorage.getItem("token")
+          axios({
+            method:"post",
+            url:"/api/videos/videoList",
+            params:{
+              token
+            },
+          }).then((res2)=>{
+            // this.videoLsit = res2.data;
+            // console.log("get videoState: " + res2.data)
+            const videoList = res2.data;
+            // console.log("get video list: " + videoLsit)
+            // console.log(JSON.stringify(videoList, null, 2));
+
+            // this.$store.commit('setVideoState', videoList);
+            // this.$store.commit('setVideoList');
+            // this.$store.commit('setVideoMapState');
+
+            this.$store.commit('initVideoPage', videoList);
+
+
+            // this.$store.state.user.videoState.forEach(video => {
+            //   console.log("name "+video.fileName);        // 正确
+            //   console.log("state "+video.keypoint_task);   // 正确（与后端一致）
+            //   // console.log(video.keypointTask); // 错误（驼峰命名会导致 undefined）
+            // });
+
+            this.$store.state.user.videoMapState.forEach((element,key) => {
+              console.log("name "+key);        // 正确
+              console.log("state "+element.keypoint_task);   // 正确（与后端一致）
+              // console.log(video.keypointTask); // 错误（驼峰命名会导致 undefined）
+            });
+          });
+        },
+        getTaskList() {
+          var token = localStorage.getItem("token")
+          axios({
+            method:"post",
+            url:"/api/tasks/taskList",
+            params:{
+              token
+            },
+          }).then((res2)=>{
+            // console.log("get taskList: " + res2.data)
+            this.$store.commit('initTaskPage',res2.data)
+            this.$store.state.user.idMapTask.forEach((element,key) => {
+              console.log("name "+key);        // 正确
+              console.log("state "+JSON.stringify(element, null, 2));   // 正确（与后端一致）
+              // console.log(video.keypointTask); // 错误（驼峰命名会导致 undefined）
+            });
+            // const taskList = res2.data;
+          });
+        },
 
     }
   }

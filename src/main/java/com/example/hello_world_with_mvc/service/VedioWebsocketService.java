@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.websocket.ClientEndpoint;
@@ -37,6 +38,7 @@ import com.google.gson.JsonParser;
 
 
 @Slf4j
+@Service
 @ServerEndpoint(value = "/VedioWebsocket/",configurator = WebSocketConfig.class)
 public class VedioWebsocketService {
      // 静态变量，记录当前在线人数。

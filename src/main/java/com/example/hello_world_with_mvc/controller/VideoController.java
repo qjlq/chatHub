@@ -19,6 +19,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import com.example.hello_world_with_mvc.entity.VideoState;
 import com.example.hello_world_with_mvc.service.DatabaseService;
 import com.example.hello_world_with_mvc.utils.TokenUtil;
 import com.example.hello_world_with_mvc.utils.VideoHandler;
@@ -43,16 +44,19 @@ public class VideoController {
     }  
 
     @PostMapping(value = "/videoList")
-    public Set<String> videoList(String token) {
+    public Set<VideoState> videoList(String token) {
         if (TokenUtil.verify(token) != null){
 
             String cid = TokenUtil.verify(token).getClaim("cid").asString();
-            Set<String> videoList = new HashSet<String>(serverHandler.database.getVideoByCid(cid));
+            Set<VideoState> videoList = new HashSet<VideoState>(serverHandler.database.getVideoStateByCid(cid));
 
-            log.info("videoList request frome [cid]: " + cid + " videoList: " + videoList.toString());
+            // log.info("videoList request frome [cid]: " + cid + " videoList: " + videoList.toString());
+            log.info("videoList request frome [cid]: " + cid );
+
             // return true;
-            return videoList;
 
+            /*  Controller 返回 Set<VideoState> 时，Spring Boot 会自动调用 Jackson 库将对象序列化为 JSON*/
+            return videoList;
         }
         else{
             log.info("videoList request frome with fail token ");

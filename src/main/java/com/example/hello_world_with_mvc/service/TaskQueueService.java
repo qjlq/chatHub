@@ -31,8 +31,8 @@ public class TaskQueueService {
         Task task = new Task();
         task.setFileName(fileName);
         task.setCreator(creator);
-        task.setType(type);
-        task.setStatus(TaskStatus.QUEUED);
+        task.setTaskType(type);
+        task.setTaskStatus(TaskStatus.QUEUED);
         task.setCreateTime(LocalDateTime.now());
         
         // task = taskRepository.save(task);
@@ -46,7 +46,7 @@ public class TaskQueueService {
     }
 
     private void startProcessing(Task task) {
-        task.setStatus(TaskStatus.PROCESSING);
+        task.setTaskStatus(TaskStatus.PROCESSING);
         task.setStartTime(LocalDateTime.now());
         // taskRepository.save(task);
 
@@ -55,10 +55,10 @@ public class TaskQueueService {
             try {
                 String result = fastApiConnect.startTask(Integer.parseInt(task.getFileName())).get(); // 调用WebSocketServer的startTask方法，返回Future对象, get()方法  阻塞  等待获取结果
                 if (result.equals("success")) {
-                    task.setStatus(TaskStatus.COMPLETED);
+                    task.setTaskStatus(TaskStatus.COMPLETED);
                 }
             } catch (Exception e) {
-                task.setStatus(TaskStatus.FAILED);
+                task.setTaskStatus(TaskStatus.FAILED);
             } finally {
                 task.setEndTime(LocalDateTime.now());
                 // taskRepository.save(task);

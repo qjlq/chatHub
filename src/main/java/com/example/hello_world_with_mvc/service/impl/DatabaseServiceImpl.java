@@ -3,11 +3,14 @@ package com.example.hello_world_with_mvc.service.impl;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import com.example.hello_world_with_mvc.entity.Group;
+import com.example.hello_world_with_mvc.entity.Task;
 import com.example.hello_world_with_mvc.entity.User;
+import com.example.hello_world_with_mvc.entity.VideoState;
 import com.example.hello_world_with_mvc.service.DatabaseService;
 import com.example.hello_world_with_mvc.service.WebSocketServer;
 
@@ -180,5 +183,57 @@ public class DatabaseServiceImpl implements DatabaseService {
         return 200;
     }
 
+    @Override
+    public List<VideoState> getVideoStateByCid(String cid){
+        try {
+            /*方法1 */
+            // String sql = "SELECT vl.video,vs.filename FROM VideoList vl INNER JOIN VideoState vs ON vl.video = vs.filename WHERE vl.cid = ?";
+            // List<VideoState> result = jdbcTemplate.query(sql,(resultset,i)->{
+            //     VideoState videoState = new VideoState();
+            //     videoState.setFileName(resultset.getString("fileName"));
+            //     videoState.setKeypoint_task(resultset.getBoolean("keypoint_task"));
+            //     videoState.setRecognize_task(resultset.getBoolean("recognize_task"));
+            //     videoState.setSeparate_task(resultset.getBoolean("separate_task"));
+            //     return videoState;
+            // },cid);
+            // return result;
+
+            /*方法2*/
+            String sql = "SELECT vs.filename , vs.keypoint_task ,vs.recognize_task, vs.separate_task " +
+                "FROM VideoList vl " +
+                "INNER JOIN VideoState vs ON vl.video = vs.filename " +
+                "WHERE vl.cid = ?";
+        
+            return jdbcTemplate.query(
+                sql,
+                new Object[]{cid}, // 参数绑定
+                new BeanPropertyRowMapper<>(VideoState.class) // 自动映射结果集到对象
+            );
+        }
+        catch (Exception e) {
+            log.info("{} cid get video state error:{}",cid,e.toString());
+            // VideoState videoState = new VideoState();
+            // return videoState;
+            return null;
+        }
+    }
+
+    @Override
+    public List<Task> getTaskList(){
+        try {
+            // String sql = "SELECT id, task_identifier,fileName, creator,task_type, task_status, create_time, start_time, end_time FROM TaskList";
+            String sql = "SELECT * FROM TaskList";
+
+            return jdbcTemplate.query(
+                sql,
+                new BeanPropertyRowMapper<>(Task.class) // 自动映射结果集到对象
+            );
+        }
+        catch (Exception e) {
+            log.info("get task list error:{}",e.toString());
+            return null;
+        }
+    }
+    
 
 }

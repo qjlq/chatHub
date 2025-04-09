@@ -217,7 +217,9 @@
     background: rgba(255, 255, 255, 0.95);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
-    height: 8%;
+    height: 8vh;
+    max-height: 12px;
+    min-height: 10px;
   }
   .function-container{
     /* position: fixed; */
