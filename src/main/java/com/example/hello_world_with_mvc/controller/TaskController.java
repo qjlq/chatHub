@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.hello_world_with_mvc.entity.Task;
+import com.example.hello_world_with_mvc.entity.VideoState;
 import com.example.hello_world_with_mvc.service.DatabaseService;
 import com.example.hello_world_with_mvc.service.FastApiConnect;
 import com.example.hello_world_with_mvc.service.TaskQueueService;
@@ -59,6 +60,13 @@ public class TaskController {
         if (TokenUtil.verify(token) != null){
             String cid = TokenUtil.verify(token).getClaim("cid").asString();
             Task task = taskQueueService.submitTask(name, cid, Task.TaskType.valueOf(type));
+            serverHandler.database.addTask(task); 
+            VideoState videoState = serverHandler.database.getVideoStateByFileName(name);
+            videoState.setState(type, "QUEUED");
+            serverHandler.database.updateVideoState(videoState); // 更新状态
+
+            log.info("submit task success, task id:{}, fileName:{}, creator:{}, type:{}", task.getId(), task.getFileName(), task.getCreator(), task.getTaskType());
+
             return ResponseEntity.ok("success");
         }
         else{{
@@ -74,9 +82,15 @@ public class TaskController {
     }
 
 
-    @RequestMapping("/complete")
-    public ResponseEntity<String> taskComplete(@RequestParam("tid") String tid) {
-        fastApiConnect.getResponseFuture().complete(tid);
+    @PostMapping("/complete")
+    public ResponseEntity<String> taskComplete(@RequestBody String tid, String fileName, String taskState) {
+        // fastApiConnect.getResponseFuture().complete(tid);
+        Task task = new Task();
+        task.setFileName(fileName);
+        task.setTaskType(Task.TaskType.valueOf(taskState));
+        log.info(tid + " complete task");
+        fastApiConnect.completeTask(tid);
+        taskQueueService.completeProcessing(tid,task);
         return ResponseEntity.ok("success");
     }
     

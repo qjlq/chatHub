@@ -31,9 +31,9 @@
       <ul class="nav-links" :class="{ 'active': isMenuOpen }">
         <li v-for="(link, index) in links" :key="index">
           <a 
-            href="#" 
+            :href="link.path" 
             class="nav-link"
-            @click="handleNavClick"
+            @click="handleNavClick()"
           >
             {{ link.name }}
           </a>
@@ -238,6 +238,8 @@
     transition: height 0.3s ease;
     width:45px; 
     height:45px; 
+    /* width:100%; 
+    height:100%;  */
     border-radius:100%;
     padding: 0 3%;
     /* margin: 0% 0% 5% 5%; */

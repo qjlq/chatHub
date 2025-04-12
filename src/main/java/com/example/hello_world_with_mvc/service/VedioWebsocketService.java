@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,12 +60,17 @@ public class VedioWebsocketService {
     private DatabaseService database;
     private static VedioWebsocketService serverHandler ; //service to service 要加
 
+    private ScheduledExecutorService pingScheduler;
+    private volatile long lastPongTime = System.currentTimeMillis();
+
     @PostConstruct //通过@PostConstruct实现初始化bean之前进行的操作
     public void init() {   //普通的autowired 引用database 会报错 null
         serverHandler = this;  
         serverHandler.database = this.database;  
         // 初使化时将已静态化的testService实例化
     } 
+
+    
     
     @OnOpen
     public void onOpen(Session session,EndpointConfig config) {
@@ -77,11 +85,12 @@ public class VedioWebsocketService {
             onlineSessionClientMap.put(cid, session);
             onlineSessionClientCount.incrementAndGet();
         }
-        this.cid = cid;
+        // this.cid = cid;
         this.session = session;
         this.UserName = serverHandler.database.getNameByCid(cid);
         sendWithform(session, cid, "",UserName, "你上线了", 0); //发用户名字
         log.info("{} video在线数：{} ==> username = {}",getTimeString(), onlineSessionClientCount, UserName);
+        startPingScheduler(); //心跳检测
     }
 
     @OnClose
@@ -90,7 +99,7 @@ public class VedioWebsocketService {
         onlineSessionClientMap.remove(this.cid);
         //在线数减1
         onlineSessionClientCount.decrementAndGet();
-        log.info("{} close: 在线数：{} ==> {} 关闭该连接session_id",getTimeString(), onlineSessionClientCount, UserName);
+        log.info("{} video close: 在线数：{} ==> {} 关闭该连接session_id",getTimeString(), onlineSessionClientCount, UserName);
         // sendToAll(message,2);
     }
 
@@ -104,6 +113,39 @@ public class VedioWebsocketService {
     public void onError(Session session, Throwable error) {
         log.error("{}:WebSocket error：{}" ,getTimeString(),error);
         // error.printStackTrace();
+    }
+
+
+    private void startPingScheduler() {
+        pingScheduler = Executors.newSingleThreadScheduledExecutor();
+        // 每隔 30 秒发送一次 Ping
+        pingScheduler.scheduleAtFixedRate(() -> {
+            try {
+                if (session.isOpen()) {
+                    session.getAsyncRemote().sendPing(ByteBuffer.wrap("ping".getBytes()));
+                    checkPongTimeout();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }, 30, 30, TimeUnit.SECONDS);
+    }
+
+    private void checkPongTimeout() {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastPongTime > 60000) { // 60 秒未收到 Pong
+            try {
+                session.close(new CloseReason(CloseReason.CloseCodes.GOING_AWAY, "No Pong response"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void stopPingScheduler() {
+        if (pingScheduler != null && !pingScheduler.isShutdown()) {
+            pingScheduler.shutdown();
+        }
     }
 
     private void sendToAll(String message) {
@@ -142,14 +184,7 @@ public class VedioWebsocketService {
         log.info("{} personal send: ==> tocid = {}, message = {}",getTimeString(), tocid, message);
         // toSession.getAsyncRemote().sendText(message);
         sendWithform(toSession,this.cid,"",UserName,message,4);
-        /*
-        // 同步发送
-        try {
-            toSession.getBasicRemote().sendText(message);
-        } catch (IOException e) {
-            log.error("发送消息失败，WebSocket IO异常");
-            e.printStackTrace();
-        }*/
+
     }
     //发送的数据格式
     //{"cid":"user","gid":"gid","name":"name","message":"hello websocket","code":"code"}
@@ -179,7 +214,7 @@ public class VedioWebsocketService {
         return formatter.format(date);
     }
 
-
+    //以下为连接fastapi websocket客户端代码
     private WebSocketClient client = new WebSocketClient();
     private Session clientSession = null;
 
@@ -223,10 +258,10 @@ public class VedioWebsocketService {
                 e.printStackTrace();
             }
             
-            if ("success".equals(message)) {
-                // responseFuture.complete(message); // 当收到success时完成Future
-                this.close();
-            }
+            // if ("success".equals(message)) {
+            //     // responseFuture.complete(message); // 当收到success时完成Future
+            //     this.close();
+            // }
         }
 
         @OnClose

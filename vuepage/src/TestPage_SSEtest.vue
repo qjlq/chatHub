@@ -65,18 +65,12 @@ onBeforeUnmount(() => {
 // 发送测试事件
 const sseSend = async () => {
   try {
-    axios({
-            method:"post",
-            url:"/api/tasks/submit",
-            params:{
-                fileName:'test',
-                token:localStorage.getItem("token"),
-                type:'keypoint_task'
-            },
-
-        }).then((res)=>{
-            console.log(res)
-        })
+    const response = await axios.post('/api/SSEs/SSEsend', {
+      message: '测试事件',
+      timestamp: Date.now()
+    })
+    console.log('事件发送成功:', response.data)
+    console.log('事件发送成功:', response)
 
   } catch (error) {
     console.error('事件发送失败:', error)

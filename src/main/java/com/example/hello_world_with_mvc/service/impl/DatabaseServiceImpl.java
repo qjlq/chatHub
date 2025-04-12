@@ -183,8 +183,9 @@ public class DatabaseServiceImpl implements DatabaseService {
         return 200;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public List<VideoState> getVideoStateByCid(String cid){
+    public List<VideoState> getVideoStateListByCid(String cid){
         try {
             /*方法1 */
             // String sql = "SELECT vl.video,vs.filename FROM VideoList vl INNER JOIN VideoState vs ON vl.video = vs.filename WHERE vl.cid = ?";
@@ -218,6 +219,31 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
     }
 
+    @SuppressWarnings("deprecation")
+    @Override
+    public VideoState getVideoStateByFileName(String fileName){
+        try {
+            // String sql = "SELECT id, task_identifier,fileName, creator,task_type, task_status, create_time, start_time, end_time FROM TaskList";
+            String sql = "SELECT * FROM VideoState WHERE filename = ?";
+            return jdbcTemplate.query(
+                sql,
+                new Object[]{fileName},
+                new BeanPropertyRowMapper<>(VideoState.class) // 自动映射结果集到对象
+            ).get(0);
+        }
+        catch (Exception e) {
+            log.info("get videoState error:{}",e.toString());
+            return null;
+        }
+    }
+
+    @Override
+    public int updateVideoState(VideoState videoState){
+        return jdbcTemplate.update("update chat.VideoState set keypoint_task = ?, recognize_task = ?, separate_task = ? where filename = ?",videoState.getKeypointTask().toString(), videoState.getRecognizeTask().toString(), videoState.getSeparateTask().toString(), videoState.getFileName());
+    }
+
+
+
     @Override
     public List<Task> getTaskList(){
         try {
@@ -234,6 +260,35 @@ public class DatabaseServiceImpl implements DatabaseService {
             return null;
         }
     }
+
+    @Override
+    public int addTask(Task task){
+        return jdbcTemplate.update("insert into chat.TaskList(filename, creator,task_type, task_status) values(?,?,?,?)", task.getFileName(), task.getCreator(),task.getTaskType().toString() , task.getTaskStatus().toString());
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public Task getTaskByIdentifier(Task task){
+        try {
+            String sql = "SELECT * FROM TaskList WHERE task_identifier = ?";
+            return jdbcTemplate.query(
+                sql,
+                new Object[]{task.getTaskIdentifier()},
+                new BeanPropertyRowMapper<>(Task.class) // 自动映射结果集到对象
+            ).get(0);
+        }
+        catch (Exception e) {
+            log.info("get task by identifier error:{}",e.toString());
+            return null;
+        }
+    }
+
+    @Override
+    public int updateTaskStateByIdentifier(Task task){
+        return jdbcTemplate.update("update chat.TaskList set task_status = ? where task_identifier = ?",task.getTaskStatus().toString(), task.getTaskIdentifier());
+    }
+
+
     
 
 }

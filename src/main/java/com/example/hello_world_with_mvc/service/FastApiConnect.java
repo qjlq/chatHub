@@ -1,6 +1,8 @@
 package com.example.hello_world_with_mvc.service;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.example.hello_world_with_mvc.entity.Task;
+import com.example.hello_world_with_mvc.entity.Task.TaskType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -18,46 +24,77 @@ import lombok.extern.slf4j.Slf4j;
 public class FastApiConnect {
     private final String FAST_API_URL = "http://localhost:8000/start-task"; // 替换为实际的FastAPI服务地址
     private CompletableFuture<String> responseFuture;
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public CompletableFuture<String> startTask(int taskId) {
-        RestTemplate restTemplate = new RestTemplate();
-        responseFuture = new CompletableFuture<>(); // 异步响应结果,用來阻塞
-        // 创建请求头
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+    private final ConcurrentHashMap<String, CompletableFuture<String>> futureMap = new ConcurrentHashMap<>();
+    // 定义请求体结构
+    private static class TaskRequest {
+        public int k;
+        public String gid;
+        public TaskType typed;
+        public String tid;
 
-        String requestBody = "{\"k\": " + taskId + "}";
-
-        // 创建请求体
-        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody,headers);
-
-        try {
-            // 发送POST请求
-            ResponseEntity<String> response = restTemplate.exchange(
-                    FAST_API_URL,
-                    HttpMethod.POST,
-                    requestEntity,
-                    String.class
-            );
-
-            // 解析响应
-            // return parseResponse(response);
-            if (parseResponse(response).isSuccess()) {
-                return responseFuture;
-            }
-            else {
-                responseFuture.complete(parseResponse(response).getMessage());
-                return responseFuture;
-            }
-        } catch (Exception e) {
-            // 处理异常
-            log.info(e.getMessage());
-            responseFuture.complete("Error: " + e.getMessage());
-            return responseFuture;
-            // return new ApiResponse(false, "Error: " + e.getMessage());
+        public TaskRequest(int k, String gid, TaskType typed, String tid) {
+            this.k = k;
+            this.gid = gid;
+            this.typed = typed;
+            this.tid = tid;
         }
     }
 
+    public CompletableFuture<String> startTask(Task task) {
+        CompletableFuture<String> future = new CompletableFuture<>();
+        String taskId = UUID.randomUUID().toString();
+        futureMap.put(taskId, future);
+        try {
+            // 1. 构建规范的 JSON 请求体
+            TaskRequest requestBody = new TaskRequest(
+                100,  // 根据需求调整 k 的值
+                task.getFileName(),
+                task.getTaskType(),
+                taskId
+            );
+
+            String jsonBody = objectMapper.writeValueAsString(requestBody);
+
+            // 2. 设置请求头
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
+
+            // 3. 发送异步请求
+            ResponseEntity<String> response = restTemplate.exchange(
+                FAST_API_URL,
+                HttpMethod.POST,
+                requestEntity,
+                String.class
+            );
+
+            // 4. 处理响应
+            if (response.getStatusCode() == HttpStatus.OK) {
+                future.complete(response.getBody());
+            } else {
+                future.completeExceptionally(new RuntimeException("API Error: " + response.getStatusCode()));
+            }
+
+        } catch (Exception e) {
+            // 5. 异常处理
+            future.completeExceptionally(e);
+        }
+
+        return future;
+    }
+
+    public void completeTask(String taskId) {
+        CompletableFuture<String> future = futureMap.remove(taskId);
+        log.info(taskId+ " completed1");
+        if (future != null) {
+            log.info(taskId+ " completed2");
+            future.complete("success");
+        }
+    }
+    
     private ApiResponse parseResponse(ResponseEntity<String> response) {
         if (response.getStatusCode() == HttpStatus.OK) {
             // 任务成功启动

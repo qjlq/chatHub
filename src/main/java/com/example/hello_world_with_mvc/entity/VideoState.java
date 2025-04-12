@@ -20,13 +20,13 @@ public class VideoState {
     /*如果后端字段名是驼峰形式（如 keypointTask），但前端期望下划线形式（如 keypoint_task），可以用@JsonProperty("keypoint_task")注解来统一命名风格： */
     @Column(name = "keypoint_task")
     @JsonProperty("keypoint_task")
-    private Boolean keypointTask;
+    private TaskStatus keypointTask;
     @Column(name = "recognize_task")
     @JsonProperty("recognize_task")
-    private Boolean recognizeTask;
+    private TaskStatus recognizeTask;
     @Column(name = "separate_task")
     @JsonProperty("separate_task")
-    private Boolean separateTask;
+    private TaskStatus separateTask;
 
     public String getFileName() {
         return fileName;
@@ -36,29 +36,49 @@ public class VideoState {
         this.fileName = fileName;
     }
 
-    public Boolean getKeypointTask() {
+    public TaskStatus getKeypointTask() {
         return keypointTask;
     }
-    public void setKeypointTask(Boolean keypointTask) {
+    public void setKeypointTask(TaskStatus keypointTask) {
         this.keypointTask = keypointTask;
     }
 
-    public Boolean getRecognizeTask() {
+    public TaskStatus getRecognizeTask() {
         return recognizeTask;
     }
 
-    public void setRecognizeTask(Boolean recognizeTask) {
+    public void setRecognizeTask(TaskStatus recognizeTask) {
         this.recognizeTask = recognizeTask;
     }
 
-    public Boolean getSeparateTask() {  
+    public TaskStatus getSeparateTask() {  
         return separateTask;    
     }    
 
-    public void setSeparateTask(Boolean separateTask) {         
+    public void setSeparateTask(TaskStatus separateTask) {         
         this.separateTask = separateTask;       
     }    
 
+ public void setState(String type, String state){
+        switch (type) {
+            case "recognize_task":
+                this.recognizeTask = TaskStatus.valueOf(state);
+                break; // 添加break语句以避免fall-through
+            case "keypoint_task":
+                this.keypointTask = TaskStatus.valueOf(state);
+                break; // 添加break语句以避免fall-through
+            case "separate_task":
+                this.separateTask = TaskStatus.valueOf(state);
+                break; // 添加break语句以避免fall-through
+        
+            default:
+                break;
+        }
+    }
+
+    public enum TaskStatus {
+        QUEUED, PROCESSING, COMPLETED, FAILED, NONE
+    }
 
 
 

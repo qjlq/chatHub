@@ -19,7 +19,8 @@ const ModuleUser = {
         socket:null,
 
         //以下为视频相关
-        videoState: [{fileName:'',keypoint_task:false,recognize_task:false,separate_task:false}], //容器
+        currentVideo: null, //当前播放的视频文件名
+        videoState: [{fileName:'',keypoint_task:'',recognize_task:'',separate_task:''}], //容器
         videoList: [], //用来构建文件名列表
         videoMapState: new Map(), //用来控制按钮样式
 
@@ -32,6 +33,7 @@ const ModuleUser = {
     },
    
     getters: {
+
     },
    
     mutations: { 
@@ -110,6 +112,11 @@ const ModuleUser = {
         state.IDtype = state.tabs[0].type
         state.tabs[0].umsg = 0
       },
+
+      //视频相关
+      setCurrentVideo(state,value){
+        state.currentVideo = value
+      },
       setVideoState(state,value){
         //要通过javaScript的自动匹配机制json来更新state.videoState，字典的关键字必须与后端的完全相同
         state.videoState = value
@@ -121,6 +128,27 @@ const ModuleUser = {
           state.videoList.push(element.fileName)
         });
       },
+      changeVideoMapState(state,[fileName,originalValue,taskType,status]){
+        // value?.[taskType] = status
+        // state.videoMapState.set(fileName,value)
+          // 1. 创建新对象避免直接修改原始数据（保证不可变性）
+        const newValue = originalValue ? { ...originalValue } : {};
+        // console.log('1' + fileName+ ' '+taskType)
+        // 2. 安全更新指定任务类型的状态
+        if (typeof taskType === 'string' && taskType) {
+          newValue[taskType] = status;
+        } else {
+          console.error('Invalid taskType:', taskType);
+          return; // 提前退出避免无效更新
+        }
+
+        // 3. 更新状态映射表（使用Map的标准API）
+        try {
+          state.videoMapState.set(fileName, newValue);
+        } catch (error) {
+          console.error('Failed to update video map state:', error);
+        }
+      },
       //以下方法需要在setVideoState之后调用
       setVideoMapState(state){
         state.videoState.forEach(element => {
@@ -128,6 +156,7 @@ const ModuleUser = {
           state.videoMapState.set(element.fileName,tmpobj)
         });
       },
+
 
       initVideoPage(state,value){
         // this.setVideoState(state,value)

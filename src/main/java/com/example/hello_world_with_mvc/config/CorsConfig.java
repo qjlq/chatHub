@@ -31,6 +31,13 @@ public class CorsConfig implements WebMvcConfigurer{
     //             //.allowCredentials(true)
     //             ;
     // }
+    
+    // @Override
+    // public void addCorsMappings(CorsRegistry registry) {
+    //     registry.addMapping("/**")
+    //             .allowedOrigins("http://localhost:2235")
+    //             .allowedMethods("*");
+    // }
 
     @Autowired
     private TokenInterceptor interceptor;

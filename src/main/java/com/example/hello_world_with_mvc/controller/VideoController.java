@@ -48,7 +48,7 @@ public class VideoController {
         if (TokenUtil.verify(token) != null){
 
             String cid = TokenUtil.verify(token).getClaim("cid").asString();
-            Set<VideoState> videoList = new HashSet<VideoState>(serverHandler.database.getVideoStateByCid(cid));
+            Set<VideoState> videoList = new HashSet<VideoState>(serverHandler.database.getVideoStateListByCid(cid));
 
             // log.info("videoList request frome [cid]: " + cid + " videoList: " + videoList.toString());
             log.info("videoList request frome [cid]: " + cid );

@@ -1,61 +1,65 @@
 <template>
   <html style="--sidebar-width: 25%;" lang="en">
-      <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect" router>
+      <!-- <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect" router>
         <el-menu-item index="/chatroom">ChatRoom</el-menu-item>
         <el-menu-item index="/login" @click="signOut">Sign out</el-menu-item>
         <el-menu-item>
           
         </el-menu-item>
-        <!-- <el-menu-item>
-        </el-menu-item> -->
+        <el-menu-item>
+        </el-menu-item>
 
-      </el-menu>
-
+      </el-menu> -->
+    <Header></Header>
   <body>
     <div class="window">
       <div class="left-bar">
         <div class="left-bar-tittle">视频列表</div>
         <div class="left-bar-partial">
-          <div v-for="tab in this.videoLsit" :key="tab">
+          <div v-for="fileName in this.$store.state.user.videoList" :key="fileName">
             <el-button 
-            :class="['left-button' ,  { 'left-button-active': this.videoChoosed === tab }]" 
-            @click="videoTab(tab)"
+            :class="['left-button' ,  { 'left-button-active': this.$store.state.user.currentVideo === fileName }]" 
+            @click="getVideo(fileName)"
             text>
-            {{ tab }}
+            {{ fileName }}
             </el-button>
           </div>
         </div>
       </div>
-      <div class = "RoomName-header">
+      <!-- <div class = "RoomName-header">
+      </div> -->
+      <div class="middle-container">
+        <toolbar/>
+        <div class="video-container">
 
-      </div>
-      <div class="video-container">
-        <!-- 视频播放器 -->
-        <!-- <video-player 
+          <!-- 视频播放器 -->
+          <!-- <video-player 
+            ref="videoPlayer"
+            class="vjs-custom-skin"
+            :options="playerOptions"
+            :videoSource = "videoSource"
+            @ready="onPlayerReady"
+          ></video-player> -->
+          <video-player 
           ref="videoPlayer"
-          class="vjs-custom-skin"
+          class="['vide-js']"
           :options="playerOptions"
-          :src = "src"
+          :src = "videoSource"
+          :controls="videoControls"
           @ready="onPlayerReady"
-        ></video-player> -->
-        <video-player 
-        ref="videoPlayer"
-        class="['vide-js']"
-        :options="playerOptions"
-        :src = "src"
-        :controls="videoControls"
-        @ready="onPlayerReady"
-        />
-        <!-- 加载状态提示 -->
-        <!-- <div v-if="isLoading" class="loading">加载中...</div> -->
-      </div>
-      <div class="left-bar" v-if="locationList">
+          />
+          <!-- 加载状态提示 -->
+          <!-- <div v-if="isLoading" class="loading">加载中...</div> -->
+        </div>
+        <div class="left-bar" v-if="locationList">
 
-        <div class="left-bar-partial">
-          <TaskQueueModal/>
+          <div class="left-bar-partial">
+            <!-- <TaskQueueModal/> -->
 
+          </div>
         </div>
       </div>
+
       
 
 
@@ -67,81 +71,141 @@
 
 <script>
 import axios from 'axios';
-import TaskQueueModal from './components/TaskQueue.vue'
+
+import Header from './components/Header.vue'
+import toolbar from './components/ToolBar.vue'
 
 import { defineComponent } from 'vue';
-// import videojs from 'video.js';
+
 import { VideoPlayer } from '@videojs-player/vue';
 import 'video.js/dist/video-js.css';
 
 export default defineComponent({
   components: { 
+    Header,
     VideoPlayer,
-    TaskQueueModal
+    toolbar,
+    // TaskQueueModal
   },
   created(){
+    this.initWebSocket();
     this.getVideoList();
   },
   data() {
     return {
       locationList:false,
       isLoading:true,
-      isReady:false,
+      // isReady:false,
       videoControls:false,
       // uploading:false,
-      src:null,
+      videoSource:null, //视频地址
       tokens:{
         token: localStorage.getItem("token")
       },
-      // fileList:[],
-      // player: null,
-      videoLsit: ['bandicam 2022-03-26 19-07-15-079.mp4','bandicam 2022-03-26 19-36-15-867.mp4','脏花.mp4'],
-      videoChoosed: null,
-
-      tasks: [
-        { 
-          id: 1, 
-          name: '用户数据导出', 
-          user: '张三', 
-          time: new Date('2023-05-15 09:30:00'), 
-          type: 'process', 
-          progress: 75 
-        },
-        { 
-          id: 2, 
-          name: '系统备份', 
-          user: '李四', 
-          time: '2023-05-15 10:15:00', 
-          type: 'backup', 
-          progress: 30 
-        },
-        { 
-          id: 3, 
-          name: '图片上传', 
-          user: '王五', 
-          time: new Date(), 
-          type: 'upload', 
-          progress: 100 
-        },
-        { 
-          id: 4, 
-          name: '日志清理', 
-          user: '赵六', 
-          time: new Date(), 
-          type: 'other', 
-          progress: 5 
-        }
-      ]
+      playerOptions: {
+        // autoplay: false,   // 是否自动播放
+        autoplay: true,   // 是否自动播放
+        controls: true,    // 显示控制条
+        fluid: true,       // 自适应容器
+        // sources: [{        // 视频源配置
+        //   type: 'video/mp4',
+        //   src: ''         // 动态填充视频URL
+        // }],
+        // sources: [],       // 视频源配置
+        // poster: '',        // 可选封面图
+        techOrder: ['html5'] // 强制使用HTML5播放
+      }
     };
   },
   computed: {
-    // reToken(){
-    //   return {
-    //     token: localStorage.getItem("token")
-    //   }
-    // }
   },
   methods: {
+    initWebSocket() {
+      // WebSocket与普通的请求所用协议有所不同，ws等同于http，wss等同于https
+      this.cid = localStorage.getItem("cid")
+      var reqUrl = "http://chatroom.qjlkalok.xyz/api/VedioWebsocket/";
+      // var reqUrl = "http://gymtest.qjlkalok.xyz/api/websocket/";
+      // var reqUrl = "http://127.0.0.1/api/VedioWebsocket/";
+      var protacal = "wss"
+      // var protacal = "ws"
+
+
+      try {
+          this.socket = new WebSocket(reqUrl.replace("http", protacal),localStorage.getItem("token"));
+          // 0 —— “CONNECTING”：连接还未建立，
+          // 1 —— “OPEN”：通信中，
+          // 2 —— “CLOSING”：连接关闭中，
+          // 3 —— “CLOSED”：连接已关闭。
+          if (this.socket.readyState == 3){
+            console.log("WebSocket 已关闭");
+            localStorage.removeItem('token')
+            alert('登陆超时')
+            this.signOut()
+
+          }
+      } catch (error) {
+          console.log(error)
+      }
+      this.socket.onopen = this.Onopen;
+      this.socket.onerror = this.Onerror;
+      this.socket.onmessage = this.receiveMsg;
+      this.socket.onclose = this.Onclose;
+  },
+  Onopen(){
+      console.log("VideoPageSocket 已打开");
+  },
+  sendMsg(){
+      if (this.newMsg != '' && this.newMsg != null){
+          // this.test.push({cid : cid++,msg: this.newMsg,left:false})
+          // this.newMsg = ''
+          //this.test.push({cid : this.cid,name : this.name ,msg: this.newMsg,left:false})
+
+
+          //this.$store.commit("showmessage",[this.$store.state.user.currentRoom,{cid : this.cid,name : this.name ,msg: this.newMsg,left:false}])
+          //this.idMapArray[this.cid] = this.idMapArray.get(this.cid).push({cid : this.cid,name : this.name ,msg: this.newMsg,left:false})
+          this.test[this.idMapArray.get(this.$store.state.user.currentRoom)].push({cid : this.cid,name : this.name ,msg: this.newMsg,left:false})
+          this.scollToButtom()
+          var tocid = '';
+          var togid = '';
+          if(this.$store.state.user.IDtype == 'gid'){
+              togid = this.$store.state.user.currentRoom
+          }else if(this.$store.state.user.IDtype == 'cid'){
+              tocid = this.$store.state.user.currentRoom
+          }
+          var msg = '{"cid":"' + tocid + '","gid":"' + togid + '","message":"' + this.newMsg + '"}'
+          this.socket.send(msg)
+          this.newMsg = ''
+          this.changeTabsNumber(this.$store.state.user.currentRoom)  //增加消息数及未读消息
+      
+      }else{
+          alert("不可发送空消息")
+      }
+  },
+  changeTabsNumber(id){
+      this.$store.commit('changeMsg', id)
+  },
+  
+  receiveMsg(msg){
+    console.log("receiveMsg"+msg)
+  },
+  onInput(e){
+      this.newMsg = e.target.value
+  },
+  Onerror(){
+
+  },
+  Onclose(){
+      //localStorage.removeItem('token')
+      this.socket.close();
+      localStorage.clear();
+      
+  },
+  reconnect(){
+      this.initWebSocket()
+  },
+  disconnect(){
+      this.socket.close()
+  },
     // // 播放器准备就绪
     getVideoList() {
       var token = localStorage.getItem("token")
@@ -152,45 +216,23 @@ export default defineComponent({
           token
         },
       }).then((res2)=>{
-        const videoList = res2.data;
-        // console.log("get video list: " + videoLsit)
-        console.log(JSON.stringify(videoList, null, 2));
-        videoList.forEach(video => {
-          console.log("name"+video.fileName);        // 正确
-          console.log("state"+video.keypoint_task);   // 正确（与后端一致）
-          // console.log(video.keypointTask); // 错误（驼峰命名会导致 undefined）
-        });
+        //还没写token过期等返回值处理逻辑
+        this.$store.commit('initVideoPage', res2.data);
       });
     },
     onPlayerReady() {
       this.isLoading = false;
     },
-    videoTab(tab){
-      this.videoChoosed = tab;
-      this.isReady = true;
-      this.videoControls = true;
+    getVideo(fileName){
+      this.$store.commit('setCurrentVideo', fileName);
+      // this.isReady = true;
+      // this.videoControls = true;
       if(!this.isLoading){
-        this.src = `/api/videos/video/${tab}`;
-        console.log(tab);
+        this.videoSource = `/api/videos/video/${fileName}`;
+        // console.log(fileName);
       }
     },
-    // uploadRequest(params){
-    //   return new Promise((resolve, reject) => {
-    //     //通过 FormData 对象上传文件
-    //     var formData = new FormData()
-    //     formData.append(params.file)
-    //     axios({url: './api/upload', method: 'post'}).Upload(formData,this.tokens).then((res) => {
-    //       if (res.code === 200) {
-    //         resolve(res)
-    //       } else {
-    //         reject(res)
-    //       }
-    //     }).catch((res) => {
-    //       console.log(res)
-    //       reject(res)
-    //     })
-    //   })
-    // },
+    // 退出登录
     signOut(){
       // localStorage.getItem("socket").close();
       localStorage.clear();
@@ -240,6 +282,13 @@ export default defineComponent({
     margin: 1%;
     min-width: 5vh;
     min-height: 5vh;
+  }
+  .middle-container {
+    display: flex;
+    flex-direction: column;
+    height: 95vh;
+    width: 100%;
+    /* height: 100%; */
   }
   .video-container {
     /* max-width: 800px;
@@ -305,7 +354,7 @@ export default defineComponent({
     overflow: hidden;
     box-sizing: border-box;
     width: 98vw;
-    height: 98vh;
+    height: 90vh;
     /* width: 90vmax;
     height: 90vmin; */
     /* width: 90vmin;

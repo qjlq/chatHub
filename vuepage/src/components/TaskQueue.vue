@@ -69,6 +69,7 @@ export default {
           { label: '提交用户', width: '15%' },
           { label: '提交时间', width: '20%' },
           { label: '任务类型', width: '15%' },
+          { label: '任务状态', width: '15%' },
           { label: '完成进度', width: '25%' }
       ],
       typeLabels: {
