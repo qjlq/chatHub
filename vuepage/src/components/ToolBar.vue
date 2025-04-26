@@ -3,23 +3,23 @@
       <el-button 
         :type="buttonType('keypoint_task')"
         :disabled="isButtonDisabled('keypoint_task')"
-        @click="regTask('keypoint_task')">test</el-button>
+        @click="handleButton('keypoint_task')">test</el-button>
       <el-button 
         :type="buttonType('keypoint_task')"
         :disabled="isButtonDisabled('keypoint_task')"
-        @click="getProgress">关键点检测</el-button>
+        @click="getInterval">关键点检测</el-button>
       <el-button 
         :type="buttonType('recognize_task')"
         :disabled="isButtonDisabled('recognize_task')"
-        @click="getVideoList">动作识别</el-button>
+        @click="getInterval">动作识别</el-button>
       <el-button
         :type="buttonType('separate_task')"
         :disabled="isButtonDisabled('separate_task')"
-        @click="getVideoList">时序动作识别</el-button>
+        @click="getInterval">时序动作识别</el-button>
 
       <el-input placeholder="Please input" v-model="input"></el-input>
     </div>
-  </template>
+</template>
 <script>
   import axios from 'axios';
   export default {
@@ -46,6 +46,7 @@
             const taskState = this.getTaskState(taskType);
             const typeMap = {
               QUEUED: 'primary',
+              PROCESSING: 'primary',
               COMPLETED: 'success',
               NONE: 'info',
               FAILED: 'danger'
@@ -62,7 +63,7 @@
       isButtonDisabled() {
         return (taskType) => {
           if (this.$store.state.user.currentVideo !== null) {
-            return this.getTaskState(taskType) === 'QUEUED';
+            return this.getTaskState(taskType) === 'QUEUED' || this.getTaskState(taskType) === 'PROCESSING';
           }
           else {
             return 'info'
@@ -71,7 +72,14 @@
       }
     },
     methods: {
-
+      handleButton(taskTypeP){
+        const taskType = taskTypeP
+        console.log('1:'+this.getTaskState(taskType))
+        if(this.getTaskState(taskType) === 'COMPLETED'){
+          console.log('2:')
+          this.getInterval()
+        }
+      },
       regTask(taskTypeP) {
         // console.log(this.input)
         const fileName = this.$store.state.user.currentVideo
@@ -90,63 +98,86 @@
               // this.$store.state.user.videoMapState.get(fileName)?.[taskType] = 'QUEUED'
               const videoState = this.$store.state.user.videoMapState.get(fileName)
               this.$store.commit('changeVideoMapState',[fileName,videoState,taskType,'QUEUED'])
-              this.$store.state.user.videoMapState.forEach((element,key) => {
-                console.log("name "+key);        // 正确
-                console.log("state "+element.keypoint_task);   // 正确（与后端一致）
-              })
-              console.log('submit ' + fileName + ' ' + taskType + ' success')
+              // this.$store.state.user.videoMapState.forEach((element,key) => {
+              //   console.log("name "+key);        // 正确
+              //   console.log("state "+element.keypoint_task);   // 正确（与后端一致）
+              // })
+              // console.log('submit ' + fileName + ' ' + taskType + ' success')
             }else{
               console.log('submit ' + fileName + ' ' + taskType + ' fail')
             }
         })
       },
-      getProgress() {
+      getInterval() {
         axios({
-              method:"post",
-              url:"/api/tasks/getProgress",
-              params:{
-                token:localStorage.getItem("token"),
-              },
+            method:"post",
+            url:"/api/videos/takeInterval",
+            params:{
+              token:localStorage.getItem("token"),
+              fileName:this.$store.state.user.currentVideo,
+            },
+            // data:{
+            //   token:localStorage.getItem("token"),
+            //   fileName:this.$store.state.user.currentVideo,
+            // }
 
-          }).then((res)=>{
-              console.log(res)
-          })
-      },
-      getVideoList() {
-        var token = localStorage.getItem("token")
-        axios({
-          method:"post",
-          url:"/api/videos/videoList",
-          params:{
-            token
-          },
-        }).then((res2)=>{
+        }).then((res)=>{
+            // console.log(res.data)
+            this.$store.commit('initInterval', res.data);
+            // this.$store.state.user.currentInterval.forEach(element => {
+            //   console.log(element);
+            //   console.log(element.start);
+            // });
 
-          const videoList = res2.data;
-          this.$store.commit('initVideoPage', videoList);
+        })
+      },
+      // getProgress() {
+      //   axios({
+      //         method:"post",
+      //         url:"/api/tasks/getProgress",
+      //         params:{
+      //           token:localStorage.getItem("token"),
+      //         },
 
-          this.$store.state.user.videoMapState.forEach((element,key) => {
-            console.log("name "+key);        // 正确
-            console.log("state "+element.keypoint_task);   // 正确（与后端一致）
-          });
-        });
-      },
-      getTaskList() {
-        var token = localStorage.getItem("token")
-        axios({
-          method:"post",
-          url:"/api/tasks/taskList",
-          params:{
-            token
-          },
-        }).then((res2)=>{
-          this.$store.commit('initTaskPage',res2.data)
-          this.$store.state.user.idMapTask.forEach((element,key) => {
-            console.log("name "+key);        // 正确
-            console.log("state "+JSON.stringify(element, null, 2));   // 正确（与后端一致）
-          });
-        });
-      },
+      //     }).then((res)=>{
+      //         console.log(res)
+      //     })
+      // },
+      // getVideoList() {
+      //   var token = localStorage.getItem("token")
+      //   axios({
+      //     method:"post",
+      //     url:"/api/videos/videoList",
+      //     params:{
+      //       token
+      //     },
+      //   }).then((res2)=>{
+
+      //     const videoList = res2.data;
+      //     this.$store.commit('initVideoPage', videoList);
+
+      //     this.$store.state.user.videoMapState.forEach((element,key) => {
+      //       console.log("name "+key);        // 正确
+      //       console.log("state "+element.keypoint_task);   // 正确（与后端一致）
+      //     });
+      //   });
+      // },
+      // getTaskList() {
+      //   var token = localStorage.getItem("token")
+      //   axios({
+      //     method:"post",
+      //     url:"/api/tasks/taskList",
+      //     params:{
+      //       token
+      //     },
+      //   }).then((res2)=>{
+      //     this.$store.commit('initTaskPage',res2.data)
+      //     this.$store.state.user.idMapTask.forEach((element,key) => {
+      //       console.log("name "+key);        // 正确
+      //       console.log("state "+JSON.stringify(element, null, 2));   // 正确（与后端一致）
+      //     });
+      //   });
+      // },
 
     }
   }

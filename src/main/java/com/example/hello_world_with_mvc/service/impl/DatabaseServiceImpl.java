@@ -152,8 +152,13 @@ public class DatabaseServiceImpl implements DatabaseService {
     }
 
     @Override
-    public int AddVideo(String video,String cid){
+    public int AddVideoList(String video,String cid){
         return jdbcTemplate.update("insert into chat.VideoList(video, cid ) values(?, ?)",video,cid);
+    }
+
+    @Override
+    public int addVideoState(String filename){
+        return jdbcTemplate.update("insert into chat.VideoState(filename) values(?)",filename);
     }
 
     @Override

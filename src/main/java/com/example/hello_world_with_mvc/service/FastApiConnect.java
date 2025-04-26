@@ -46,6 +46,7 @@ public class FastApiConnect {
     public CompletableFuture<String> startTask(Task task) {
         CompletableFuture<String> future = new CompletableFuture<>();
         String taskId = UUID.randomUUID().toString();
+        // String taskId = task.getId().toString();
         futureMap.put(taskId, future);
         try {
             // 1. 构建规范的 JSON 请求体
@@ -88,9 +89,9 @@ public class FastApiConnect {
 
     public void completeTask(String taskId) {
         CompletableFuture<String> future = futureMap.remove(taskId);
-        log.info(taskId+ " completed1");
+        // log.info(taskId+ " completed1");
         if (future != null) {
-            log.info(taskId+ " completed2");
+            // log.info(taskId+ " completed2");
             future.complete("success");
         }
     }

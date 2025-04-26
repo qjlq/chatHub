@@ -1,5 +1,6 @@
 package com.example.hello_world_with_mvc.service;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
@@ -88,9 +89,8 @@ public class VedioWebsocketService {
         // this.cid = cid;
         this.session = session;
         this.UserName = serverHandler.database.getNameByCid(cid);
-        sendWithform(session, cid, "",UserName, "你上线了", 0); //发用户名字
         log.info("{} video在线数：{} ==> username = {}",getTimeString(), onlineSessionClientCount, UserName);
-        startPingScheduler(); //心跳检测
+        // startPingScheduler(); //心跳检测
     }
 
     @OnClose
@@ -99,7 +99,7 @@ public class VedioWebsocketService {
         onlineSessionClientMap.remove(this.cid);
         //在线数减1
         onlineSessionClientCount.decrementAndGet();
-        log.info("{} video close: 在线数：{} ==> {} 关闭该连接session_id",getTimeString(), onlineSessionClientCount, UserName);
+        log.info("{} video close: 在线数：{} ==> {} 关闭video WS连接",getTimeString(), onlineSessionClientCount, UserName);
         // sendToAll(message,2);
     }
 
@@ -115,86 +115,26 @@ public class VedioWebsocketService {
         // error.printStackTrace();
     }
 
-
-    private void startPingScheduler() {
-        pingScheduler = Executors.newSingleThreadScheduledExecutor();
-        // 每隔 30 秒发送一次 Ping
-        pingScheduler.scheduleAtFixedRate(() -> {
-            try {
-                if (session.isOpen()) {
-                    session.getAsyncRemote().sendPing(ByteBuffer.wrap("ping".getBytes()));
-                    checkPongTimeout();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }, 30, 30, TimeUnit.SECONDS);
-    }
-
-    private void checkPongTimeout() {
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastPongTime > 60000) { // 60 秒未收到 Pong
-            try {
-                session.close(new CloseReason(CloseReason.CloseCodes.GOING_AWAY, "No Pong response"));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void stopPingScheduler() {
-        if (pingScheduler != null && !pingScheduler.isShutdown()) {
-            pingScheduler.shutdown();
-        }
-    }
-
-    private void sendToAll(String message) {
-        // 遍历在线map集合
+    public void sendProgress(String fileName, String taskName,String progress) {
         onlineSessionClientMap.forEach((onlinecid, toSession) -> {
-            // 排除掉自己
-            if (!cid.equalsIgnoreCase(onlinecid)) {
-                log.info("{} send: cid = {} ==> tocid = {}, message = {}",getTimeString(), cid, onlinecid, message);
-                // toSession.getAsyncRemote().sendText(message);
-                sendWithform(toSession,cid,"",UserName,message,1); //defualt code 1
-            }
+            sendWithform(toSession,fileName,taskName,progress,201);
+            // sendWithform(toSession,progress,201);
         });
     }
 
-    private void sendToAll(String message,int code) {
+    public void sendTask(String fileName, String taskName,int code) {
         // 遍历在线map集合
         onlineSessionClientMap.forEach((onlinecid, toSession) -> {
-            // 排除掉自己
-            if (!cid.equalsIgnoreCase(onlinecid)) {
-                log.info("{} send: cid = {} ==> tocid = {}, message = {}",getTimeString(), cid, onlinecid, message);
-                // toSession.getAsyncRemote().sendText(message);
-                sendWithform(toSession,cid,"",UserName,message,code);
-            }
+                sendWithform(toSession,fileName,taskName,code);
         });
     }
 
-    //指定发送消息
-    private void sendToOne(String tocid, String message) {
-        // 通过cid查询map中是否存在
-        Session toSession = onlineSessionClientMap.get(tocid);
-        if (toSession == null) {
-            log.error("{} send error: tocid = {} 不存在, message = {}",getTimeString(), tocid, message);
-            return;
-        }
-        // 异步发送
-        log.info("{} personal send: ==> tocid = {}, message = {}",getTimeString(), tocid, message);
-        // toSession.getAsyncRemote().sendText(message);
-        sendWithform(toSession,this.cid,"",UserName,message,4);
-
-    }
     //发送的数据格式
     //{"cid":"user","gid":"gid","name":"name","message":"hello websocket","code":"code"}
-    private void sendWithform(Session session,String cid,String gid,String name, String msg,int code) {
+    private void sendWithform(Session session,String fileName, String taskName,int code) {
         JsonObject message = new JsonObject();
-        message.addProperty("cid",cid);
-        message.addProperty("gid",gid);
-        message.addProperty("name",name);
-        message.addProperty("msg",msg);
-        //message.addProperty("totallist","");
+        message.addProperty("fileName",fileName);
+        message.addProperty("taskType",taskName);
         message.addProperty("code",code);
         synchronized(session){ //防止冲突
             try {
@@ -207,6 +147,52 @@ public class VedioWebsocketService {
         }
     }
 
+    // private void sendProgressForm(Session session,String taskId, String progress,int code) {
+    //     JsonObject message = new JsonObject();
+    //     message.addProperty("taskId",taskId);
+    //     message.addProperty("progress",progress);
+    //     message.addProperty("code",code);
+    //     synchronized(session){ //防止冲突
+    //         try {
+    //             session.getBasicRemote().sendText(message.toString());
+    //         } catch (IOException e) {
+    //             // TODO Auto-generated catch block
+    //             log.info(e.toString());
+    //             e.printStackTrace();
+    //         }
+    //     }
+    // }
+
+    private void sendWithform(Session session,String fileName, String taskName,String progress,int code) {
+        JsonObject message = new JsonObject();
+        // message.addProperty("fileName",fileName);
+        // message.addProperty("taskType",taskName);
+        message.addProperty("taskIdentifier",fileName+"_"+taskName);
+        message.addProperty("progress",progress);
+        message.addProperty("code",code);
+        synchronized(session){ //防止冲突
+            try {
+                session.getBasicRemote().sendText(message.toString());
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                log.info(e.toString());
+                e.printStackTrace();
+            }
+        }
+    }
+
+    
+    // private void sendWithform(Session session,String progress,int code) {
+    //     synchronized(session){ //防止冲突
+    //         try {
+    //             session.getBasicRemote().sendText(progress);
+    //         } catch (IOException e) {
+    //             // TODO Auto-generated catch block
+    //             log.info(e.toString());
+    //             e.printStackTrace();
+    //         }
+    //     }
+    // }
 
     private String getTimeString(){
         SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
@@ -228,6 +214,13 @@ public class VedioWebsocketService {
         }
     }
 
+    // public void downProgress() {
+    //     if (clientSession!=null && clientSession.isOpen()){
+    //         client.sendMessage("down");
+    //     }
+    // }
+    
+
     @ClientEndpoint
     public class WebSocketClient {
         private Session session;
@@ -241,7 +234,7 @@ public class VedioWebsocketService {
 
         @OnMessage
         public void onMessage(String message) throws IllegalArgumentException, IOException {
-            log.info("收到消息: " + message);
+            // log.info("收到消息: " + message);
             try {
                 synchronized (this) { // 同步块保证线程安全
                     if (this.session != null && this.session.isOpen()) {
@@ -250,6 +243,9 @@ public class VedioWebsocketService {
 
                     }
                 }
+                String fileName = TaskQueueService.currentTask.getFileName();
+                // fileName = fileName.substring(0, fileName.lastIndexOf('.'));
+                sendProgress(fileName,TaskQueueService.currentTask.getTaskType().toString(),message); //向前端转发进度消息
             } catch (IOException e) {
                 // 连接已关闭，停止心跳
                 log.info("connection close by error");
@@ -271,8 +267,19 @@ public class VedioWebsocketService {
 
         @OnError
         public void onError(Throwable throwable) {
-            System.err.println("WebSocket错误: ");
-            throwable.printStackTrace();
+            // System.err.println("WebSocket错误: ");
+            // throwable.printStackTrace();
+            if (throwable instanceof EOFException) {
+                // 客户端非正常断开，无需记录错误日志
+                try {
+                    session.close();
+                } catch (IOException e) {
+                    // 可选：记录关闭时的异常
+                }
+            } else {
+                // 其他异常需记录并处理
+                log.error("WebSocket error: {}", throwable.getMessage());
+            }
         }
 
         public void sendMessage(String message) {

@@ -23,13 +23,13 @@ const ModuleUser = {
         videoState: [{fileName:'',keypoint_task:'',recognize_task:'',separate_task:''}], //容器
         videoList: [], //用来构建文件名列表
         videoMapState: new Map(), //用来控制按钮样式
+        currentInterval: [], //当前播放的视频的时序推理结果
 
-        taskList: [{id:0,fileName:'',taskIdentifier:'',taskType:'',taskStatus:'',creator:'',createTime:'',startTime:'',endTime:''}], //容器
+        currentTask: null, //当前任务文件名
+        taskList: [{id:0,fileName:'',taskIdentifier:'',taskType:'',taskStatus:'',creator:'',createTime:'',startTime:'',endTime:'',progress:0}], //容器
         // task:{id:0,fileName:'',creator:'',createTime:'',taskType:'',taskStatus:''}, //容器 用于用户在查看任务详情时有其他用户新增任务的情况
         // taskProgress: {id:'',progress:0}, //容器//在界面设计时设置progress default value为0，在后端返回taskProgress时更新
         idMapTask: new Map(), //用来构建任务列表
-
-
     },
    
     getters: {
@@ -37,6 +37,35 @@ const ModuleUser = {
     },
    
     mutations: { 
+      RESET_USER_STATE(state) {
+        // 重置所有状态为初始值
+        state.cid = "";
+        state.username = "";
+        state.cidMapTotallist = new Map();  
+        state.cidMapGidinfo = new Map();
+        state.tabs = [
+          { gid: '', groupname: '', type: '', msg: 0, umsg: 0 }
+        ];
+        state.chatRoom = new Map();
+        state.currentRoom = 'ALL';
+        state.IDtype = 'ALL'; 
+        state.groupname = 'ALL';
+        state.currentRoomMsg = 0;
+        state.socket = null;
+  
+        // 重置视频相关状态
+        state.currentVideo = null;
+        state.videoState = [{ fileName: '', keypoint_task: '', recognize_task: '', separate_task: '' }];
+        state.videoList = [];
+        state.videoMapState = new Map();
+  
+        // 重置任务相关状态
+        state.taskList = [{ id: 0, fileName: '', taskIdentifier: '', taskType: '', taskStatus: '', creator: '', createTime: '', startTime: '', endTime: '', progress: 0 }];
+        state.idMapTask = new Map();
+        state.currentTask = null;
+        state.currentInterval = [];
+      },
+    
       updateUser(state,user){
         state.cid = user.cid;
         state.username = user.username;
@@ -156,6 +185,9 @@ const ModuleUser = {
           state.videoMapState.set(element.fileName,tmpobj)
         });
       },
+      initInterval(state,value){
+        state.currentInterval = value
+      },
 
 
       initVideoPage(state,value){
@@ -168,6 +200,9 @@ const ModuleUser = {
           const tmpobj = {keypoint_task:element.keypoint_task,recognize_task:element.recognize_task,separate_task:element.separate_task}
           state.videoMapState.set(element.fileName,tmpobj)
         });
+      },
+      uploadVideo(state,fileName){
+        state.videoList.push(fileName)
       },
 
       //任务列表相关
@@ -192,18 +227,47 @@ const ModuleUser = {
         state.taskList = value
         state.taskList.forEach(element => {
           //progress初始设置为0，在后端返回taskProgress时更新
-          const task = {fileName:element.fileName,creator:element.creator,createTime: element.createTime,taskType:element.taskType,taskStatus:element.taskStatus,progress:0}
-          state.idMapTask.set(element.id,task)
+          var progress = 0
+          if (element.taskStatus === 'COMPLETED') {
+            progress = 100
+          }
+          const task = {id:element.id,fileName:element.fileName,creator:element.creator,createTime: element.createTime,taskType:element.taskType,taskStatus:element.taskStatus,progress:progress}
+          state.idMapTask.set(element.taskIdentifier,task)
         });
       },
       addTask(state,value){
-        const task = {fileName:value.fileName,creator:value.creator,createTime: value.createTime,taskType:value.taskType,taskStatus:value.taskStatus,progress:0}
-        state.idMapTask.set(value.id,task)
+        const task = {id:value.id,fileName:value.fileName,creator:value.creator,createTime: value.createTime,taskType:value.taskType,taskStatus:value.taskStatus,progress:0}
+        state.idMapTask.set(value.taskIdentifier,task)
       },
       updateProgress(state,value){
-        const task = state.idMapTask.get(value.id)
+        // var task = state.idMapTask.get(value.taskIdentifier)
+        // task.progress = value.progress
+        // state.idMapTask.set(value.taskIdentifier,task)
+        console.log('from user' + value.taskIdentifier)
+        const task = state.idMapTask.get(value.taskIdentifier)
+        if (state.currentTask === null){
+          state.currentTask = value.taskIdentifier
+        }
+
+        if (!task) {
+          console.error('Task not found:', value.taskIdentifier)
+          return
+        }
+        if (state.currentTask !== value.taskIdentifier){
+          const tmp=state.idMapTask.get(state.currentTask)
+          tmp.progress =100
+          tmp.taskStatus = 'COMPLETED'
+          state.currentTask = value.taskIdentifier
+          task.taskStatus = 'PROCESSING'
+        }
         task.progress = value.progress
-        state.idMapTask.set(value.id,task)
+        if (value.progress === 'completed'){
+          task.taskStatus = 'COMPLETED'
+          task.progress = 100
+        }
+        else{
+          task.taskStatus = 'PROCESSING'
+        }
       },
       deleteTask(state,id){
         state.idMapTask.delete(id)

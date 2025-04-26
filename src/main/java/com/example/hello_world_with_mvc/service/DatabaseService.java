@@ -27,10 +27,11 @@ public interface DatabaseService {
 
     //视频相关操作
     public List<String> getVideoByCid(String gid);
-    public int AddVideo(String video,String cid);
+    public int AddVideoList(String video,String cid);
     public List<VideoState> getVideoStateListByCid(String cid);
     public VideoState getVideoStateByFileName(String fileName);
     public int updateVideoState(VideoState videoState);
+    public int addVideoState(String filename);
 
     public List<Task> getTaskList();
     public int addTask(Task task);

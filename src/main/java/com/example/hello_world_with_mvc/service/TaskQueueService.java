@@ -22,7 +22,7 @@ public class TaskQueueService {
     private final BlockingQueue<Task> taskQueue = new LinkedBlockingQueue<>();
     private final AtomicBoolean isProcessing = new AtomicBoolean(false);
     private final Object lock = new Object();
-
+    public static Task currentTask;
     @Autowired
     private DatabaseService database;
     private static TaskQueueService serverHandler;
@@ -45,26 +45,32 @@ public class TaskQueueService {
     public synchronized Task submitTask(String fileName, String creator, Task.TaskType type) {
         Task task = new Task();
         task.setFileName(fileName);
+        task.setTaskIdentifier(fileName+ '_' + type.toString());
         task.setCreator(creator);
         task.setTaskType(type);
-        task.setTaskStatus(TaskStatus.QUEUED);
         task.setCreateTime(LocalDateTime.now());
         
         // task = taskRepository.save(task);
         
         if (isProcessing.compareAndSet(false, true)) {
             log.info("start processing a Task");
+            task.setTaskStatus(TaskStatus.PROCESSING);
+            task.setStartTime(LocalDateTime.now());
             startProcessing(task);
         } else {
             log.info("add a Task in queue");
+            task.setTaskStatus(TaskStatus.QUEUED);
+
             taskQueue.add(task);
         }
-        return task;
+        return task; //返回给taskcontroller 后写入数据库
     }
 
     private void startProcessing(Task task) {
-        task.setTaskStatus(TaskStatus.PROCESSING);
-        task.setStartTime(LocalDateTime.now());
+        currentTask = task;
+        // task.setTaskStatus(TaskStatus.PROCESSING);
+        // task.setTaskStatus(TaskStatus.PROCESSING);
+        // task.setStartTime(LocalDateTime.now());
         // taskRepository.save(task);
 
         // 异步处理任务
@@ -111,8 +117,8 @@ public class TaskQueueService {
         log.info("a Task processing completed");
         synchronized (lock) {
             VideoState videoState = serverHandler.database.getVideoStateByFileName(task.getFileName());
-            task.setTaskIdentifier(task.getFileName()+ '_' + task.getTaskType().toString());
-            if (tid != null){
+            // task.setTaskIdentifier(task.getFileName()+ '_' + task.getTaskType().toString());
+            if (tid != null){  //completeProcessing 从fastapi 返回调用的有tid
                 task.setTaskStatus(TaskStatus.COMPLETED);
                 videoState.setState(task.getTaskType().toString(), "COMPLETED");
                 task.setEndTime(LocalDateTime.now());
@@ -127,6 +133,10 @@ public class TaskQueueService {
                 fastApiConnect.completeTask(tid);
 
                 Task nextTask = taskQueue.poll();
+                nextTask.setTaskStatus(TaskStatus.PROCESSING);
+                nextTask.setStartTime(LocalDateTime.now());
+                serverHandler.database.updateTaskStateByIdentifier(nextTask);
+
                 startProcessing(nextTask);
             } else {
                 isProcessing.set(false);

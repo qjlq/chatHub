@@ -57,6 +57,8 @@
   <script>
 
   import TaskQueueModal from './TaskQueue.vue'
+  // import axios from 'axios';
+
   export default {
     components: { 
         TaskQueueModal
@@ -68,19 +70,6 @@
         uploading:false,
         listShow:true,
         fileList:[],      
-        playerOptions: {
-          // autoplay: false,   // 是否自动播放
-          autoplay: true,   // 是否自动播放
-          // controls: true,    // 显示控制条
-          fluid: true,       // 自适应容器
-          // sources: [{        // 视频源配置
-          //   type: 'video/mp4',
-          //   src: ''         // 动态填充视频URL
-          // }],
-          sources: [],       // 视频源配置
-          poster: '',        // 可选封面图
-          techOrder: ['html5'] // 强制使用HTML5播放
-        },
         // isMobile: false,
         tokens:{
           token: localStorage.getItem("token")
@@ -136,7 +125,19 @@
         console.log("success"+res+file.name+fileList);
         this.$refs.upload.clearFiles();
         this.uploading = false;
-        this.videoLsit.push(file.name);
+        // this.videoLsit.push(file.name);
+        this.$store.commit('uploadVideo', file.name);
+        // var token = localStorage.getItem("token")
+        // axios({
+        //   method:"post",
+        //   url:"/api/videos/videoList",
+        //   params:{
+        //     token
+        //   },
+        // }).then((res2)=>{
+        //   //还没写token过期等返回值处理逻辑
+        //   this.$store.commit('initVideoPage', res2.data);
+        // });
       },
       handleExceed(files, fileList){
         console.log("handle Exceed"+files.name+fileList);

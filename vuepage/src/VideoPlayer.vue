@@ -155,38 +155,31 @@ export default defineComponent({
       console.log("VideoPageSocket 已打开");
   },
   sendMsg(){
-      if (this.newMsg != '' && this.newMsg != null){
-          // this.test.push({cid : cid++,msg: this.newMsg,left:false})
-          // this.newMsg = ''
-          //this.test.push({cid : this.cid,name : this.name ,msg: this.newMsg,left:false})
+      // if (this.newMsg != '' && this.newMsg != null){
 
-
-          //this.$store.commit("showmessage",[this.$store.state.user.currentRoom,{cid : this.cid,name : this.name ,msg: this.newMsg,left:false}])
-          //this.idMapArray[this.cid] = this.idMapArray.get(this.cid).push({cid : this.cid,name : this.name ,msg: this.newMsg,left:false})
-          this.test[this.idMapArray.get(this.$store.state.user.currentRoom)].push({cid : this.cid,name : this.name ,msg: this.newMsg,left:false})
-          this.scollToButtom()
-          var tocid = '';
-          var togid = '';
-          if(this.$store.state.user.IDtype == 'gid'){
-              togid = this.$store.state.user.currentRoom
-          }else if(this.$store.state.user.IDtype == 'cid'){
-              tocid = this.$store.state.user.currentRoom
-          }
-          var msg = '{"cid":"' + tocid + '","gid":"' + togid + '","message":"' + this.newMsg + '"}'
-          this.socket.send(msg)
-          this.newMsg = ''
-          this.changeTabsNumber(this.$store.state.user.currentRoom)  //增加消息数及未读消息
       
-      }else{
-          alert("不可发送空消息")
-      }
+      // }else{
+      //     alert("不可发送空消息")
+      // }
   },
-  changeTabsNumber(id){
-      this.$store.commit('changeMsg', id)
-  },
-  
+
   receiveMsg(msg){
-    console.log("receiveMsg"+msg)
+    // console.log("receiveMsg++++++ :"+msg.data)
+    const data = JSON.parse(msg.data)
+    // console.log('oooo: '+data.fileName)
+    if (data.code === 200){
+      // console.log('receiveMsg1: '+data.fileName)
+      if (this.$store.state.user.videoMapState.has(data.fileName)){
+        const videoState = this.$store.state.user.videoMapState.get(data.fileName)
+        this.$store.commit('changeVideoMapState',[data.fileName,videoState,data.taskType,'COMPLETED'])
+        // console.log('receiveMsg2: '+data.taskType)
+      }
+    }else if (data.code === 201){
+      // console.log('receiveMsg3: '+data.fileName)
+      // console.log('receiveMsg4: '+data.taskIdentifier)
+
+      this.$store.commit('updateProgress', data);
+    }
   },
   onInput(e){
       this.newMsg = e.target.value
@@ -195,9 +188,14 @@ export default defineComponent({
 
   },
   Onclose(){
-      //localStorage.removeItem('token')
+      localStorage.removeItem('token')
       this.socket.close();
       localStorage.clear();
+      this.$store.commit('RESET_USER_STATE');
+      alert('登陆超时')
+      this.$router.push({
+        name:'login',
+      });
       
   },
   reconnect(){
@@ -207,37 +205,37 @@ export default defineComponent({
       this.socket.close()
   },
     // // 播放器准备就绪
-    getVideoList() {
-      var token = localStorage.getItem("token")
-      axios({
-        method:"post",
-        url:"/api/videos/videoList",
-        params:{
-          token
-        },
-      }).then((res2)=>{
-        //还没写token过期等返回值处理逻辑
-        this.$store.commit('initVideoPage', res2.data);
-      });
-    },
-    onPlayerReady() {
-      this.isLoading = false;
-    },
-    getVideo(fileName){
-      this.$store.commit('setCurrentVideo', fileName);
-      // this.isReady = true;
-      // this.videoControls = true;
-      if(!this.isLoading){
-        this.videoSource = `/api/videos/video/${fileName}`;
-        // console.log(fileName);
-      }
-    },
-    // 退出登录
-    signOut(){
-      // localStorage.getItem("socket").close();
-      localStorage.clear();
-      this.$router.push('/login');
-    },
+  getVideoList() {
+    var token = localStorage.getItem("token")
+    axios({
+      method:"post",
+      url:"/api/videos/videoList",
+      params:{
+        token
+      },
+    }).then((res2)=>{
+      //还没写token过期等返回值处理逻辑
+      this.$store.commit('initVideoPage', res2.data);
+    });
+  },
+  onPlayerReady() {
+    this.isLoading = false;
+  },
+  getVideo(fileName){
+    this.$store.commit('setCurrentVideo', fileName);
+    // this.isReady = true;
+    // this.videoControls = true;
+    if(!this.isLoading){
+      this.videoSource = `/api/videos/video/${fileName}`;
+      // console.log(fileName);
+    }
+  },
+  // 退出登录
+  signOut(){
+    // localStorage.getItem("socket").close();
+    localStorage.clear();
+    this.$router.push('/login');
+  },
   },
 
 });

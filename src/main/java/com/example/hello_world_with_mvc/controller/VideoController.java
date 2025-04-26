@@ -1,5 +1,7 @@
 package com.example.hello_world_with_mvc.controller;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -8,8 +10,10 @@ import java.util.List;
 import java.util.Set;
 import java.nio.file.Path;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,10 +23,14 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import com.example.hello_world_with_mvc.entity.Interval;
 import com.example.hello_world_with_mvc.entity.VideoState;
 import com.example.hello_world_with_mvc.service.DatabaseService;
 import com.example.hello_world_with_mvc.utils.TokenUtil;
 import com.example.hello_world_with_mvc.utils.VideoHandler;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -75,13 +83,13 @@ public class VideoController {
         try {
             // Path path = Paths.get("/media/SSD/DataDisk/gym/events/");
             String RootPath = "/home/yaukalok/myweb/UserVideo/";
-            // String RootPath = "E:\\kaf\\";
+            // String RootPath = "E:\kaf\";
             // String filename = request.getParameter("filename");
             log.info("filename: " + filename);
 // String filename = "zNL3kn3UBmg.mp4";
             // String filename = "tQLr-oGPO_I_E_004996_005065.mp4";
-            // Path path = Paths.get("E:\\kaf\\【239】[feat. 花譜, ツミキ] トウキョウ・シャンディ・ランデヴ ⧸ MAISONdes.mp4");
-            // Path path = Paths.get("E:\\kaf\\bandicam 2022-03-26 19-07-15-079.mp4");
+            // Path path = Paths.get("E:\kaf\【239】[feat. 花譜, ツミキ] トウキョウ・シャンディ・ランデヴ ⧸ MAISONdes.mp4");
+            // Path path = Paths.get("E:\kaf\bandicam 2022-03-26 19-07-15-079.mp4");
 
             Path path = Paths.get(RootPath + filename);
 
@@ -92,7 +100,7 @@ public class VideoController {
                 // request.setAttribute(VideoHandler.ATTR_FILE, "/media/SSD/DataDisk/gym/events/tQLr-oGPO_I_E_004996_005065.mp4");
 
                 request.setAttribute(VideoHandler.ATTR_FILE, RootPath + filename);
-                // request.setAttribute(VideoHandler.ATTR_FILE, "E:\\kaf\\bandicam 2022-03-26 19-07-15-079.mp4");
+                // request.setAttribute(VideoHandler.ATTR_FILE, "E:\kaf\bandicam 2022-03-26 19-07-15-079.mp4");
 
 
                 VideoHandler.handleRequest(request, response);
@@ -116,4 +124,31 @@ public class VideoController {
             response.setStatus(500);
         }
     }
+
+    @PostMapping(value = "/takeInterval")
+    public List<Interval> takeInterval(@RequestParam("token") String token, @RequestParam("fileName") String fileName){
+    // public List<Interval> takeInterval(@RequestData("token") String token, @RequestBody("fileName") String fileName){
+        log.info("takeInterval request frome [filename]: " + fileName);
+        if (TokenUtil.verify(token) != null){
+            try {
+                String baseName = fileName.substring(0, fileName.lastIndexOf("."));
+                String filePath = "/home/yaukalok/myweb/UserVideo/" + baseName + "_interval.json"; //使用的绝对路径
+                ObjectMapper mapper = new ObjectMapper();
+                // File file = new ClassPathResource(filePath).getFile(); 通过类路径访问（需文件在 resources 目录下）
+                File file = new File(filePath);
+                return mapper.readValue(
+                    file,
+                    new TypeReference<List<Interval>>(){}
+                );
+            } catch (IOException e) {
+                log.error("Error reading intervals file", e);
+                return null;
+            }
+        }
+        else{
+            log.info("takeInterval request frome with fail token ");
+            return null;
+        }
+    }
+    
 }

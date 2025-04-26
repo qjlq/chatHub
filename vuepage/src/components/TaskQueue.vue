@@ -1,6 +1,6 @@
 <template>
     <!-- 触发按钮 -->
-    <el-button size="small" type="primary" @click="showModal = true" class="ListButton">
+    <el-button size="small" type="primary" @click="openModal" class="ListButton">
       {{'显示任务队列' }}
     </el-button>
 
@@ -21,20 +21,27 @@
           </div>
         </div>
         
-        <div v-for="(task, index) in this.tasks" 
-            :key="task.id || index" 
+        <div v-for="task in Array.from($store.state.user.idMapTask.values()).sort((a, b) =>{
+          const aProcessing = a.taskStatus === 'PROCESSING';
+          const bProcessing = b.taskStatus === 'PROCESSING';
+          if (aProcessing && !bProcessing) return -1;
+          if (!aProcessing && bProcessing) return 1;
+          if (aProcessing && bProcessing) return a.id - b.id;
+          return b.id - a.id;
+        })" 
+            :key="task.id" 
             class="task-item">
           <div class="task-name" :style="{ width: this.columns[0].width || 'auto' }">
-            {{ task.name }}
+            {{ task.fileName }}
           </div>
           <div class="task-user" :style="{ width: this.columns[1].width || 'auto' }">
-            {{ task.user }}
+            {{ task.creator }}
           </div>
           <div class="task-time" :style="{ width: this.columns[2].width || 'auto' }">
-            {{ formatTime(task.time) }}
+            {{ formatTime(task.createTime) }}
           </div>
           <div class="task-type" :style="{ width: this.columns[3].width || 'auto' }">
-            <span :class="'type-' + task.type">{{ getTypeLabel(task.type) }}</span>
+            <span :class="'type-' + task.type">{{ getTypeLabel(task.taskType) }}</span>
           </div>
           <div class="task-status" :style="{ width: this.columns[4].width || 'auto' }">
             <span :class="'type-' + task.taskStatus">{{ getTypeLabel(task.taskStatus) }}</span>
@@ -54,6 +61,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'TaskQueueModal',
   props: {
@@ -65,12 +74,12 @@ export default {
       tableKey: 0,
       progress:30,
       columns:  [
-          { label: '任务名称', width: '25%' },
+          { label: '视频名称', width: '30%' },
           { label: '提交用户', width: '15%' },
-          { label: '提交时间', width: '20%' },
-          { label: '任务类型', width: '15%' },
-          { label: '任务状态', width: '15%' },
-          { label: '完成进度', width: '25%' }
+          { label: '提交时间', width: '10%' },
+          { label: '任务类型', width: '10%' },
+          { label: '任务状态', width: '10%' },
+          { label: '完成进度', width: '20%' }
       ],
       typeLabels: {
         type: Object,
@@ -82,131 +91,47 @@ export default {
         })
       },
       tasks: [
-        { 
-          id: 1, 
-          name: '用户数据导出', 
-          user: '张三', 
-          time: new Date('2023-05-15 09:30:00'), 
-          type: 'process', 
-          progress: 75 
-        },
-        { 
-          id: 2, 
-          name: '系统备份', 
-          user: '李四', 
-          time: '2023-05-15 10:15:00', 
-          type: 'backup', 
-          progress: 30 
-        },
-        { 
-          id: 3, 
-          name: '图片上传', 
-          user: '王五', 
-          time: new Date(), 
-          type: 'upload', 
-          progress: 100 
-        },
-        { 
-          id: 4, 
-          name: '日志清理', 
-          user: '赵六', 
-          time: new Date(), 
-          type: 'other', 
-          progress: 5 
-        },
-        { 
-          id: 4, 
-          name: '日志清理', 
-          user: '赵六', 
-          time: new Date(), 
-          type: 'other', 
-          progress: 5 
-        },
-        { 
-          id: 1, 
-          name: '用户数据导出', 
-          user: '张三', 
-          time: new Date('2023-05-15 09:30:00'), 
-          type: 'process', 
-          progress: 75 
-        },
-        { 
-          id: 2, 
-          name: '系统备份', 
-          user: '李四', 
-          time: '2023-05-15 10:15:00', 
-          type: 'backup', 
-          progress: 30 
-        },
-        { 
-          id: 3, 
-          name: '图片上传', 
-          user: '王五', 
-          time: new Date(), 
-          type: 'upload', 
-          progress: 100 
-        },
-        { 
-          id: 4, 
-          name: '日志清理', 
-          user: '赵六', 
-          time: new Date(), 
-          type: 'other', 
-          progress: 5 
-        },
-        { 
-          id: 4, 
-          name: '日志清理', 
-          user: '赵六', 
-          time: new Date(), 
-          type: 'other', 
-          progress: 5 
-        },
-        { 
-          id: 1, 
-          name: '用户数据导出', 
-          user: '张三', 
-          time: new Date('2023-05-15 09:30:00'), 
-          type: 'process', 
-          progress: 75 
-        },
-        { 
-          id: 2, 
-          name: '系统备份', 
-          user: '李四', 
-          time: '2023-05-15 10:15:00', 
-          type: 'backup', 
-          progress: 30 
-        },
-        { 
-          id: 3, 
-          name: '图片上传', 
-          user: '王五', 
-          time: new Date(), 
-          type: 'upload', 
-          progress: 100 
-        },
-        { 
-          id: 4, 
-          name: '日志清理', 
-          user: '赵六', 
-          time: new Date(), 
-          type: 'other', 
-          progress: 5 
-        },
-        { 
-          id: 4, 
-          name: '日志清理', 
-          user: '赵六', 
-          time: new Date(), 
-          type: 'other', 
-          progress: 5 
-        },
+        // { 
+        //   id: 1, 
+        //   name: '用户数据导出', 
+        //   user: '张三', 
+        //   time: new Date('2023-05-15 09:30:00'), 
+        //   type: 'process', 
+        //   progress: 75 
+        // }
       ]
     }
   },
   methods: {
     openModal() {
+      var token = localStorage.getItem("token")
+      axios({
+        method:"post",
+        url:"/api/tasks/taskList",
+        params:{
+          token
+        },
+      }).then((res2)=>{
+        // res2.data.forEach(element => {
+        //   console.log(element)
+        // });
+        // this.tasks = res2.data
+        this.$store.commit('initTaskPage', res2.data);
+        this.$store.state.user.idMapTask.forEach((value, key) => {
+          console.log(key + " " + value.fileName)
+        });
+        // console.log(res2.data)
+      });
+      axios({
+        method:"post",
+        url:"/api/tasks/getProgress",
+        params:{
+          token
+        },
+      }).then((res2)=>{
+        console.log("progress connection:" + res2.data)
+        // this.tasks = res2.data
+      });
       this.showModal = true
     },
     closeModal() {

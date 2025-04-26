@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.hello_world_with_mvc.entity.VideoState;
 import com.example.hello_world_with_mvc.service.DatabaseService;
 import com.example.hello_world_with_mvc.utils.TokenUtil;
 import com.google.gson.JsonObject;
@@ -88,7 +89,7 @@ public class FileController {
                     if (videoList.contains(filename))
                         return ResponseEntity.status(400).body("文件已存在");
                     else{
-                        serverHandler.database.AddVideo(filename, cid);
+                        serverHandler.database.AddVideoList(filename, cid);
                         return ResponseEntity.ok("success");
                     }
                     // return ResponseEntity.ok("400");
@@ -99,7 +100,8 @@ public class FileController {
                 file.transferTo(filePath);
                 // file.transferTo(new File(uploadDir, filename));
                 log.info("upload success: " + filePath);
-                serverHandler.database.AddVideo(filename, cid);
+                serverHandler.database.addVideoState(filename);
+                serverHandler.database.AddVideoList(filename, cid);
                 return ResponseEntity.ok("success");
             } catch (IOException ex) {
                 log.error("上传失败: {}", ex.getMessage(), ex);

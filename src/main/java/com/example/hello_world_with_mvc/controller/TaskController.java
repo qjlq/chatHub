@@ -60,9 +60,11 @@ public class TaskController {
         if (TokenUtil.verify(token) != null){
             String cid = TokenUtil.verify(token).getClaim("cid").asString();
             Task task = taskQueueService.submitTask(name, cid, Task.TaskType.valueOf(type));
-            serverHandler.database.addTask(task); 
+            serverHandler.database.addTask(task); //写入数据库
             VideoState videoState = serverHandler.database.getVideoStateByFileName(name);
-            videoState.setState(type, "QUEUED");
+            // videoState.setState(type, "QUEUED");
+            videoState.setState(type, task.getTaskStatus().toString());
+
             serverHandler.database.updateVideoState(videoState); // 更新状态
 
             log.info("submit task success, task id:{}, fileName:{}, creator:{}, type:{}", task.getId(), task.getFileName(), task.getCreator(), task.getTaskType());
@@ -77,8 +79,13 @@ public class TaskController {
 
     @RequestMapping("/getProgress")
     public ResponseEntity<String> getProgress(@RequestParam("token") String token) {
-        client.getProgress();
-        return ResponseEntity.ok("success");
+        if (TokenUtil.verify(token) != null){
+            client.getProgress();
+            return ResponseEntity.ok("success");
+        }
+        else{
+            return ResponseEntity.status(401).body("无效token");
+        }
     }
 
 
@@ -88,9 +95,11 @@ public class TaskController {
         Task task = new Task();
         task.setFileName(fileName);
         task.setTaskType(Task.TaskType.valueOf(taskState));
+        task.setTaskIdentifier(fileName + "_" + taskState);
         log.info(tid + " complete task");
         fastApiConnect.completeTask(tid);
         taskQueueService.completeProcessing(tid,task);
+        client.sendTask(fileName, taskState, 200);
         return ResponseEntity.ok("success");
     }
     
@@ -101,7 +110,9 @@ public class TaskController {
             String cid = TokenUtil.verify(token).getClaim("cid").asString();
             Set<Task> TaskList = new HashSet<Task>(serverHandler.database.getTaskList());
             log.info("TaskList request frome [cid]: " + cid );
-
+            for (Task task : TaskList) {
+                task.setCreator(serverHandler.database.getNameByCid(task.getCreator()));
+            }
             /*  Controller 返回 Set<TaskState> 时，Spring Boot 会自动调用 Jackson 库将对象序列化为 JSON*/
             return TaskList;
         }
